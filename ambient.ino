@@ -1,11 +1,20 @@
 #include "order.h"
+#include "devices.h"
+#include <Servo.h>
 
 int8_t angle = -1;
 float water_quantity = 0; //Unit: liters
 float flow_rate = 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
+Servo servo;
 
 void setup() {
   Serial.begin(9600);
+
+  // Set output pins
+  pinMode(WATERPUMP, OUTPUT);
+  digitalWrite(WATERPUMP, LOW);
+  servo.attach(STEPPERMOTOR);
+
   bool is_connected = true;
   while (!is_connected)
   {
@@ -83,6 +92,7 @@ int8_t read_i8() {
 //Not understanding this
 int16_t read_i16()
 {
+
 }
 float read_float(){}
 
@@ -120,4 +130,6 @@ void water_plant() {
   }
 }
 void update_motor(plant){}
+}
+
 }
