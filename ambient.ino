@@ -1,7 +1,8 @@
 #include "order.h"
 
-int8_t plant = 0;
-int8_t water = 0;
+int8_t angle = -1;
+float water_quantity = 0; //Unit: liters
+float flow_rate = 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
 
 void setup() {
   Serial.begin(9600);
@@ -12,12 +13,16 @@ void setup() {
     wait_for_bytes(1, 1000);
     comm_task();
   }
+  Timer COMM_timer = 0;
+  Timer WATER_PLANT_timer = 0;
 
 }
 
 void loop() {
-  comm_task();
-  water_plant();
+  COMM_timer++; //per sekund
+  WATER_PLANT_timer++;
+  //comm_task();
+  //water_plant();
 }
 
 void comm_task() {
@@ -31,7 +36,7 @@ void comm_task() {
           {
             write_order(RECEIVED);
             int8_t sensor = read_i8();
-            if (sensor > 0) {
+            if (sensor >= 0 && sensor <=5) {
               int8_t msg = analogRead(sensor);
               write_order(SENSOR_MSG);
               write_i8(msg);
@@ -41,13 +46,13 @@ void comm_task() {
         case ACTION_WATER_PLANT:
           {
             write_order(RECEIVED);
-            plant = read_i8();
+            angle = read_i8();
             break;
           }
-        case ACTION_WATER_PUMP:
+        case ACTION_WATER_QUANTITY:
           {
             write_order(RECEIVED);
-            water = read_i8();
+            water_quantity = read_float();
             break;
           }
         default:
@@ -78,8 +83,8 @@ int8_t read_i8() {
 //Not understanding this
 int16_t read_i16()
 {
-
 }
+float read_float(){}
 
 //uint8_t is an unsigned 8 bit integer, uint8_t* is a pointer to an 8 bit integer in ram/memory
 //The & in front of the pointer type variable will show the actual data held by the pointer.
@@ -100,9 +105,19 @@ void write_i16(int16_t num)
 }
 
 void water_plant() {
-  if (plant > 0 && water > 0) {
-    //Water
+  if (angle >= 0 && water_quantity > 0) {
+    //NEED TO HANDLDE TIME
+    update_motor(angle);
+    delay(10);
+    int duration = wanter_quantity/flow_rate;
+    digitalWrite(WATERPUMP, HIGH);
+    delay(duration);
+    digitalWrite(WATERPUMP, LOW);
+    update_motor(MOTOR_INIT);
+    water_quantity = 0;
+    angle = -1;
+    write_order(WATERING_FINISHED);
   }
-  plant = 0;
-  water = 0;
+}
+void update_motor(plant){}
 }
