@@ -1,10 +1,19 @@
 #include "order.h"
+#include "devices.h"
+#include <Servo.h>
 
 int8_t plant = 0;
 int8_t water = 0;
+Servo servo;
 
 void setup() {
   Serial.begin(9600);
+  
+  // Set output pins
+  pinMode(WATERPUMP, OUTPUT);
+  digitalWrite(WATERPUMP, LOW);
+  servo.attach(STEPPERMOTOR);
+  
   bool is_connected = true;
   while (!is_connected)
   {
@@ -18,6 +27,11 @@ void setup() {
 void loop() {
   comm_task();
   water_plant();
+
+
+  // servo.write(45); Turn Servo Left to 45 degrees Angir grad, orientation, ikke rotasjon
+  // servo.write(90);  Turn Servo back to center position (90 degrees)
+  // servo.write(135); Turn Servo Right to 135 degrees
 }
 
 void comm_task() {
@@ -105,4 +119,6 @@ void water_plant() {
   }
   plant = 0;
   water = 0;
+}
+
 }
