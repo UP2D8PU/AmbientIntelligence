@@ -100,6 +100,7 @@ class ListenerThread(threading.Thread):
                 time.sleep(rate)
                 continue
             byte = bytes_array[0]
+
             with self.serial_lock:
                 try:
                     order = Order(byte)

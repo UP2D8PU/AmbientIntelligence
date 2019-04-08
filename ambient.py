@@ -3,6 +3,7 @@ import struct
 import threading
 import time
 import schedule
+from .database import plants
 
 from .threads import CommandThread, ListenerThread
 from .utilities import CustomQueue, open_serial_port
@@ -62,10 +63,33 @@ def decode_order(f, byte, debug=False):
         elif order == Order.STOP:
             msg = "STOP"
         elif order == Order.SENSOR_MSG:
+            sensor = read_i8(f)
             sensor_data = read_i8(f)
             msg = "sensormsg {}".format(sensor_data)
-        elif order == Order.WATERING_FINISHED:
-            PythonCode.ready_to_water = True
+            if sensor == 0:
+                WaterProgram.temperatur_value = sensor_data
+            elif sensor == 1:
+                WaterProgram.airhumidity_value = sensor_data
+            elif sensor == 2:
+                WaterProgram.lightsensor_value = sensor_data
+            elif sensor == 3:
+                WaterProgram.humiditysensor_value[0] = sensor_data
+            elif sensor == 4:
+                WaterProgram.humiditysensor_value[1] = sensor_data
+            elif sensor == 5:
+                WaterProgram.humiditysensor_value[2] = sensor_data
+            elif sensor == 6:
+                WaterProgram.humiditysensor_value[3] = sensor_data
+            elif sensor == 7:
+                WaterProgram.humiditysensor_value[4] = sensor_data
+            elif sensor == 8:
+                WaterProgram.humiditysensor_value[5] = sensor_data
+            elif sensor == 9:
+                WaterProgram.humiditysensor_value[6] = sensor_data
+            else:
+                msg=""
+                print("Unknown Sensor",sensor)
+
         else:
             msg = ""
             print("Unknown Order", byte)
@@ -79,7 +103,7 @@ def addtoq(self,element):
     self.queue.insert(0,element)
 
 
-class PythonCode(object):
+class WaterProgram(object):
     def __init__(self):
         self.TEMPERATURE_SENSOR = 0
         self.AIRHUMIDITY_SENSOR=1
@@ -188,5 +212,5 @@ class PythonCode(object):
 
 
 if __name__ =="__main__":
-    main = PythonCode()
+    main = WaterProgram()
     main.run()

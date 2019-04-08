@@ -1,4 +1,5 @@
 #include "order.h"
+#include "QueueArray.h"
 
 int8_t angle = -1;
 float water_quantity = 0; //Unit: liters
@@ -8,7 +9,7 @@ void setup() {
   Serial.begin(9600);
   bool is_connected = true;
   while (!is_connected)
-  {
+  { 
     write_order(HELLO);
     wait_for_bytes(1, 1000);
     comm_task();
