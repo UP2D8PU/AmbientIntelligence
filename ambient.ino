@@ -1,8 +1,11 @@
 #include "order.h"
 
-int8_t angle = -1;
-float water_quantity = 0; //Unit: liters
 float flow_rate = 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
+
+QueueArray <int8_t> angle;
+QueueArray <int8_t> water_quantity; //Unit:liters
+
+Servo servo;
 
 void setup() {
   Serial.begin(9600);
@@ -53,13 +56,15 @@ void comm_task() {
         case ACTION_WATER_PLANT:
           {
             write_order(RECEIVED);
-            angle = read_i8();
+            input = read_i8();
+            angle.push(input);
             break;
           }
         case ACTION_WATER_QUANTITY:
           {
             write_order(RECEIVED);
-            water_quantity = read_float();
+            input = read_float();
+            water_quantity.push(input);
             break;
           }
         default:
@@ -112,19 +117,21 @@ void write_i16(int16_t num)
 }
 
 void water_plant() {
-  if (angle >= 0 && water_quantity > 0) {
+  if (angle.count()>0 && water_quantity.count() > 0) {
     //NEED TO HANDLDE TIME
-    update_motor(angle);
+    a=angle.pop();
+    q=water_quantity.pop();
+    update_motor(a);
     delay(10);     
-    int duration = wanter_quantity/flow_rate;
+    int duration = q/flow_rate;
     digitalWrite(WATERPUMP, HIGH);
     delay(duration);
     digitalWrite(WATERPUMP, LOW);
     update_motor(MOTOR_INIT);
-    water_quantity = 0;
-    angle = -1;
-    write_order(WATERING_FINISHED);
+    
   }
 }
-void update_motor(plant){}
+void update_motor(angle){
+  servo.write(angle)
+  }
 }

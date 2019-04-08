@@ -25,36 +25,36 @@ garden = {
     0: {
         "type": 1,
         "angle": 0,
-        "water": 0.1,
+        "water": 0,
     },
     1: {
         "type": 0,
-        "angle": 0,
+        "angle": 30,
         "water": 0,
     },
     2: {
         "type": 0,
-        "angle": 0,
+        "angle": 60,
         "water": 0,
     },
     3: {
         "type": 0,
-        "angle": 0,
+        "angle": 90,
         "water": 0,
     },
     4: {
         "type": 0,
-        "angle": 0,
+        "angle": 120,
         "water": 0,
     },
     5: {
         "type": 0,
-        "angle": 0,
+        "angle": 150,
         "water": 0,
     },
     6: {
         "type": 0,
-        "angle": 0,
+        "angle": 180,
         "water": 0,
     },
 

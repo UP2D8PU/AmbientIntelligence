@@ -4,8 +4,10 @@ import threading
 import time
 import schedule
 
-from .threads import CommandThread, ListenerThread
-from .utilities import CustomQueue, open_serial_port
+from threads import * #CommandThread, ListenerThread
+from utilities import *#CustomQueue, open_serial_port
+from database import *#plants, garden
+ # TODO fikse import til mac/windows
 
 class Order(Enum):
     HELLO = 0
@@ -64,8 +66,6 @@ def decode_order(f, byte, debug=False):
         elif order == Order.SENSOR_MSG:
             sensor_data = read_i8(f)
             msg = "sensormsg {}".format(sensor_data)
-        elif order == Order.WATERING_FINISHED:
-            PythonCode.ready_to_water = True
         else:
             msg = ""
             print("Unknown Order", byte)
@@ -91,9 +91,8 @@ class PythonCode(object):
         self.temperatur_value = 0
         self.airhumidity_value=0
         self.lightsensor_value=0
-        self.humiditysensor1_value = 0
-        self.humiditysensor2_value = 0
-        self.humiditysensor3_value = 0
+        self.humiditysensor_value = [0,0,0,0,0,0,0]
+
 
 
         try:
@@ -130,18 +129,11 @@ class PythonCode(object):
         for t in self.threads:
             t.start()
 
-    def waterPlant(self, angle, quantity):
-        if(self.ready_to_water):
-            write_order(Order.ACTION_WATER_PLANT);
-            write_i8(angle);
-            write_order(Order.ACTION_WATER_QUANTITY);
-            write_i8(quantity);
-        else:
-            addtoq(Order.ACTION_WATER_PLANT);
+    def water_plant(self, angle, quantity):
+            self.command_queue.put((Order.ACTION_WATER_PLANT, angle))
+            self.command_queue.put((Order.ACTION_WATER_QUANTITY, quantity))
 
-
-
-    def retrieveAllSensorData(self):
+    def retrieve_all_sensordata(self):
 
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR))
         self.command_queue.put((Order.REQUEST_SENSOR, self.AIRHUMIDITY_SENSOR))
@@ -150,13 +142,57 @@ class PythonCode(object):
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2))
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_3))
 
+
+    def daily_water(self):
+        for i in range(0, 6):
+            type = garden[i]["type"]
+            if type > 0:
+                water_quantity = plants[type]["water quantity"]
+                garden[i]["water"] = water_quantity
+
+    def evaluate_sensor_values(self):
+        for i in range(0, 6):
+            if self.plantList[i] > 0:
+                soil_threshold = plants[self.plantList[i]]["humidity threshold"]
+                water_quantity = plants[self.plantList[i]]["water quantity"]
+                light_intensity = plants[self.plantList[i]]["light intensity"]
+                if self.humiditysensor_value[i] < soil_threshold:
+                    self.wateringList.insert(i,water_quantity)
+                if self.humiditysensor_value[i] > soil_threshold+20:
+                    self.wateringList.insert(i,0)
+
+
+                # TODO: FINISH DENNE, oppdater etter garden elementer
+
+
+
     def run(self):
+        web = False
+        while True:
+            schedule.every(1).minutes.do(self.retrieve_all_sensordata())
+            schedule.every().day.at("12:00").do(self.daily_water)
 
-        self.ready_to_water = True #If arduino are not busy watering other plants
-        schedule.every(1).minutes.do(self.retrieveAllSensorData())
+            self.evaluate_sensor_values()
 
-        #TO DO:
-        #HANDLE RETRIEVED SENSOR MESSAGES/SAVE THEM
+        # TODO: hente ting fra nett: legge inn nye planter i hagen vanningsordre
+        # TODO: sende data til nett
+
+            if(web == True):
+                x=1
+
+            for i in range(0,6):
+                if garden[i]["water"] > 0:
+                    self.water_plant(garden[i]["angle"],garden[i]["water"])
+                    garden[i]["water"]=0
+
+
+
+
+
+
+
+
+
 
 
         #schedule.every(10).minutes.do(job)
@@ -167,12 +203,6 @@ class PythonCode(object):
         #schedule.every().wednesday.at("13:15").do(job)
         #schedule.every().minute.at(":17").do(job)
 
-
-
-
-
-        # Send 3orders to the arduino
-        # self.command_queue.put((Order.MOTOR, -56)) # Eks 1
 
         # End the threads
         self.exit_event.set()

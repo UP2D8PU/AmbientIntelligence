@@ -14,7 +14,6 @@ enum Order {
   ACTION_WATER_PLANT = 7,
   ACTION_WATER_QUANTITY = 8,
   ACTION_STOP_WATER = 9,
-  WATERING_FINISHED = 10;
 };
 
 typedef enum Order Order;
