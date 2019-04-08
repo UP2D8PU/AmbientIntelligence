@@ -45,6 +45,7 @@ void comm_task() {
             if (sensor >= 0 && sensor <=5) {
               int8_t msg = analogRead(sensor);
               write_order(SENSOR_MSG);
+              write_i8(sensor);
               write_i8(msg);
             }
             break;

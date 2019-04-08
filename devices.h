@@ -5,7 +5,7 @@
 // Define analoge pins for sensors
 #define TEMPERATURE_SENSOR 0
 #define AIRHUMIDITY_SENSOR 1
-#define LIGHT_SENSOR_3 2
+#define LIGHT_SENSOR 2
 #define HUMIDITY_SENSOR_1 3
 #define HUMIDITY_SENSOR_2 4
 #define HUMIDITY_SENSOR_3 5
