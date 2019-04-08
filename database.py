@@ -21,4 +21,41 @@ plants = {
     }
 };
 
-#print (plants[1]["name"])
+garden = {
+    0: {
+        "type": 1,
+        "angle": 0,
+        "water": 0.1,
+    },
+    1: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+    2: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+    3: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+    4: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+    5: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+    6: {
+        "type": 0,
+        "angle": 0,
+        "water": 0,
+    },
+
+};
