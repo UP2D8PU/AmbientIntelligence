@@ -1,20 +1,11 @@
 #include "order.h"
-#include "devices.h"
-#include <Servo.h>
 
 int8_t angle = -1;
 float water_quantity = 0; //Unit: liters
 float flow_rate = 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
-Servo servo;
 
 void setup() {
   Serial.begin(9600);
-
-  // Set output pins
-  pinMode(WATERPUMP, OUTPUT);
-  digitalWrite(WATERPUMP, LOW);
-  servo.attach(STEPPERMOTOR);
-
   bool is_connected = true;
   while (!is_connected)
   {
@@ -22,12 +13,18 @@ void setup() {
     wait_for_bytes(1, 1000);
     comm_task();
   }
+
+  TIME_init();
+  SYS_init();
   Timer COMM_timer = 0;
-  Timer WATER_PLANT_timer = 0;
+  Timer WATER_PLANT_timer = 0; 
 
 }
 
 void loop() {
+  TIME_task();
+  SYS_task();
+  
   COMM_timer++; //per sekund
   WATER_PLANT_timer++;
   //comm_task();
@@ -92,7 +89,6 @@ int8_t read_i8() {
 //Not understanding this
 int16_t read_i16()
 {
-
 }
 float read_float(){}
 
@@ -118,7 +114,7 @@ void water_plant() {
   if (angle >= 0 && water_quantity > 0) {
     //NEED TO HANDLDE TIME
     update_motor(angle);
-    delay(10);
+    delay(10);     
     int duration = wanter_quantity/flow_rate;
     digitalWrite(WATERPUMP, HIGH);
     delay(duration);
@@ -130,6 +126,4 @@ void water_plant() {
   }
 }
 void update_motor(plant){}
-}
-
 }
