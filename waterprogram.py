@@ -2,11 +2,12 @@ from enum import Enum
 import struct
 import threading
 import time
-import schedule
-from .database import plants
 
-from .threads import CommandThread, ListenerThread
-from .utilities import CustomQueue, open_serial_port
+
+from threads import * #CommandThread, ListenerThread
+from utilities import * #CustomQueue, open_serial_port
+from database import * #plants
+#import schedule
 
 class Order(Enum):
     HELLO = 0

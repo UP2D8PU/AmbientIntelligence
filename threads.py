@@ -5,8 +5,8 @@ import time
 
 import serial
 
-from .ambient import write_order, Order, write_i8, decode_order
-from .utilities import queue
+from waterprogram import * # write_order, Order, write_i8, decode_order
+from utilities import * # queue
 
 rate = 1 / 2000  # 2000 Hz (limit the rate of communication with the arduino)
 
