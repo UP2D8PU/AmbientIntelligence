@@ -1,4 +1,5 @@
 #include "order.h"
+#include "QueueArray.h"
 
 float flow_rate = 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
 
@@ -11,7 +12,7 @@ void setup() {
   Serial.begin(9600);
   bool is_connected = true;
   while (!is_connected)
-  {
+  { 
     write_order(HELLO);
     wait_for_bytes(1, 1000);
     comm_task();
