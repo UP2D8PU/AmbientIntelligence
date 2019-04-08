@@ -1,8 +1,10 @@
-#from arduino import ser
 from enum import Enum
 import struct
 import threading
 import time
+from .threads import CommandThread, ListenerThread
+
+from .utilities import CustomQueue, open_serial_port
 
 class Order(Enum):
     HELLO = 0
@@ -82,32 +84,63 @@ class PythonCode(object):
         self.clear = True #If arduino has retrieved last message
         self.ready_to_water = True #If arduino are not busy watering other plants
 
-        self.interval = interval
-        thread = threading.Thread(target=self.run,args())
-        thread.daemon = True
-        thread.start()
+        try:
+            ser = open_serial_port()
+        except Exception as e:
+            raise e
+        is_connected = False
+        # Initialize communication with Arduino
+        while not is_connected:
+            print("Waiting for arduino...")
+            write_order(ser, Order.HELLO)
+            bytes_array = bytearray(ser.read(1))
+            if not bytes_array:
+                time.sleep(2)
+                continue
+            byte = bytes_array[0]
+            if byte in [Order.HELLO.value, Order.ALREADY_CONNECTED.value]:
+                is_connected = True
 
+        print("Connected to Arduino")
+
+        # Create Command queue for sending orders
+        self.command_queue = CustomQueue(2)
+
+        # Number of messages we can send to the Arduino without receiving an acknowledgment
+        self.n_messages_allowed = 3
+        self.n_received_tokens = threading.Semaphore(self.n_messages_allowed)
+
+        # Lock for accessing serial file (to avoid reading and writing at the same time)
+        self.serial_lock = threading.Lock()
+
+        # Event to notify threads that they should terminate
+        self.exit_event = threading.Event()
+
+        print("Starting Communication Threads")
+
+        # Initialize Threads for arduino communication
+        self.threads = [CommandThread(ser, self.command_queue, self.exit_event, self.n_received_tokens, self.serial_lock),
+                   ListenerThread(ser, self.exit_event, self.n_received_tokens, self.serial_lock)]
+        # Start threads
+        for t in self.threads:
+            t.start()
 
 
     clear = True
-    def run():
-        while True:
-            if (ser.available()>0):
-                Order order = read_order()
+    def run(self):
 
 
+        # Send 3orders to the arduino
+        # self.command_queue.put((Order.MOTOR, -56)) # Eks 1
 
-            queue = list()
-            if len(queue)>0 & clear == True > 0:
-                write_order(queue.pop())
+        # End the threads
+        self.exit_event.set()
+        self.n_received_tokens.release()
 
+        print("Exiting...")
 
-            #If action request from homepage
-            if (clear == True):
-                write_order()
-                clear = False;
-            else:
-                queue.insert(order)
+        for t in self.threads:
+            t.join()
 
 
 
@@ -115,3 +148,4 @@ class PythonCode(object):
 
 if __name__ =="__main__":
     main = PythonCode()
+    main.run()
