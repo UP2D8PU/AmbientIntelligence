@@ -34,15 +34,31 @@ class CustomQueue(queue.Queue):
             self.queue.clear()
             self.not_full.notify_all()
 
-def open_serial_port():
-    # find arduino tty
-    arduino_path = '/dev/'
-    arduino_tty = False
-    for file in os.listdir(arduino_path):
-        if file.startswith('tty.usb'):
-            arduino_tty = arduino_path + file
-            break
 
-    # connect to arduino output
-    ser = serial.Serial(arduino_tty, 9600) if arduino_tty else None
-    return ser
+# From https://stackoverflow.com/questions/12090503/listing-available-com-ports-with-python
+# Returns a list of available serial ports (based on if you have windows or mac computer
+# glob.glob(pathname) -> Return a possibly-empty list of path names that match pathname,
+def get_serial_ports():
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    results = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            results.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return results
+
+# Open serial port (for communication with Arduino)
+def open_serial_port(serial_port=None, baudrate=115200, timeout=0, write_timeout=0):
+    #If serial port is not specified, it can be detected with get_serial_ports()
+    if serial_port is None:
+        serial_port = get_serial_ports()[0]
+    return serial.Serial(port=serial_port, baudrate=baudrate, timeout=timeout, writeTimeout=write_timeout)
