@@ -1,13 +1,13 @@
 #ifndef ORDER_H
 #define ORDER_H
 
+// TO DO: CHANGE THIS FROM ENUM TO DEFINE
 // Define the orders that can be sent and received
 enum Order {
   HELLO = 0,
   ALREADY_CONNECTED = 1,
   ERROR = 2,
   RECEIVED = 3,
-  STOP = 4,
 
   REQUEST_SENSOR = 5,
   SENSOR_MSG = 6,
