@@ -29,6 +29,7 @@
 /* Variáveis globais ::vars **/
 
 uint8_t COM_timer;  /* 10 ms */
+uint8_t BYTE_timer;  /* 10 ms */
 QueueArray <int8_t> angle = 0; //Unit: degrees
 QueueArray <int8_t> water_quantity = 0; //Unit:liters
 
@@ -45,7 +46,7 @@ void /**/COM_init(void)
   while (!is_connected)
   {
     write_order(HELLO);
-    wait_for_bytes(1, 1000);
+    wait_for_bytes(1, 100);
     COM_task();
   }
   #endif
@@ -58,11 +59,11 @@ void /**/COM_init(void)
 +------------------------------------------------------------------------*/
 
 
-void wait_for_bytes(int num_bytes, unsigned long timeout)
+void wait_for_bytes(int num_bytes, uint8_t timeout)
 {
-  unsigned long startTime = millis();
+  uint8_t startTime = BYTE_timer;
   //Wait for incoming bytes or exit if timeout
-  while ((Serial.available() < num_bytes) && (millis() - startTime < timeout)) {}
+  while ((Serial.available() < num_bytes) && (BYTE_timer - startTime < timeout)) {}
 }
 
 Order read_order() {

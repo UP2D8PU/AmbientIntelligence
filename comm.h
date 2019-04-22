@@ -2,7 +2,7 @@
 /* ::extern vars **/
 
 extern uint8_t COM_timer;  /* 10 ms */
-
+extern uint8_t BYTE_timer;
 
 /* public functions **/
 
