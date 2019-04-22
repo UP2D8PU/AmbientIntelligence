@@ -10,12 +10,12 @@
 
 
 /*  Notas:
-:cfg - Assinala opções de configuração
-ATT - Assinala uma particularidade a ter em atenção
-!!  - Assinala uma instrução que não deve ser alterada
+:cfg - Assinala opï¿½ï¿½es de configuraï¿½ï¿½o
+ATT - Assinala uma particularidade a ter em atenï¿½ï¿½o
+!!  - Assinala uma instruï¿½ï¿½o que nï¿½o deve ser alterada
 :err - Assinala um erro interno
 cast - Assinala um cast
-:dbg - Assinala código usado para debug
+:dbg - Assinala cï¿½digo usado para debug
 */
 
 
@@ -29,18 +29,17 @@ cast - Assinala um cast
 #ifndef _SYS_TASK_
 /* ::extern vars **/
 
-extern uint8 SYS_led_timer;  /* 10 ms */
+extern uint8_t SYS_led_timer;  /* 10 ms */
 
 
 /* public functions **/
 
 void SYS_init(void);
 void SYS_task(void);
-void SYS_led_num_pulses(uint8 num_pulses);
+void SYS_led_num_pulses(uint8_t num_pulses);
 
 #endif
 
 
 /* Fim do ficheiro sys.h **/
 /* Autor: Renato Jorge Caleira Nunes */
-

@@ -1,4 +1,4 @@
-#include <QueueArray.h>
+#include "QueueArray.h"
 #ifndef __queue_h__
 #define __queue_h__
 
