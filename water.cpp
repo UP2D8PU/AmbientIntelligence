@@ -42,13 +42,13 @@ void UPDATE_motor(uint8_t angle)
 void /**/WATER_task(void){
   if (angle.count()>0 && water_quantity.count() > 0) {
     //NEED TO HANDLDE TIME
-    int8_t a;
-    int8_t q;
+    uint8_t a;
+    uint8_t q;
     a=angle.pop();
     q=water_quantity.pop();
     UPDATE_motor(a);
     delay(10);     
-    int duration = q/flow_rate;
+    uint8_t duration = q/flow_rate;
     digitalWrite(WATERPUMP, HIGH);
     delay(duration);
     digitalWrite(WATERPUMP, LOW);

@@ -2,7 +2,7 @@
 /* ::extern vars **/
 
 extern uint8_t WATER_timer;  /* 10 ms */
-#define flow_rate 0.18927; //Average flow rate kitchen sink: 3gpm (gallons per minute) = 0.18927 liters/seconds
+#define flow_rate 189; //Average flow rate kitchen sink: 189.27 milliliters/seconds
 
 /* public functions **/
 

@@ -32,6 +32,8 @@ uint8_t COM_timer;  /* 10 ms */
 uint8_t BYTE_timer;  /* 10 ms */
 QueueArray <int8_t> angle = 0; //Unit: degrees
 QueueArray <int8_t> water_quantity = 0; //Unit:liters
+uint8_t checksum; 
+bool message_received;
 
 
 
@@ -79,11 +81,12 @@ int8_t read_i8() {
 int16_t read_i16()
 {
 }
+
 float read_float(){}
 
 //uint8_t is an unsigned 8 bit integer, uint8_t* is a pointer to an 8 bit integer in ram/memory
 //The & in front of the pointer type variable will show the actual data held by the pointer.
-void write_order(enum Order myOrder) {
+void write_order(int myOrder) {
   uint8_t* Order = (uint8_t*) &myOrder;
   Serial.write(Order, sizeof(uint8_t));
 }
@@ -99,49 +102,79 @@ void write_i16(int16_t num)
   Serial.write((uint8_t*)&buffer, 2 * sizeof(int8_t));
 }
 
-void /**/COM_task(void)
+
+void write_startbyte()
+{
+  write_order(START_BYTE);
+}
+
+void write_checksum(uint8_t checksum)
+{
+  write_i8(checksum);
+}
+
+
+
+void COM_task(void)
 {
   Order read_order(void);
-  
   if (Serial.available() > 0) {
-    Order order = read_order();
-    if (order == HELLO) {
-      //Ta stilling til oppkobling
-    } else {
-      switch (order) {
-        case REQUEST_SENSOR:
-          {
-            write_order(RECEIVED);
-            int8_t sensor = read_i8();
-            if (sensor >= 0 && sensor <=5) {
-              int8_t msg = analogRead(sensor);
-              write_order(SENSOR_MSG);
-              write_i8(sensor);
-              write_i8(msg);
+    
+    uint8_t checksum = 0 ;
+    uint8_t start = read_i8();
+    if (start - START_BYTE == 0){
+      checksum = start; 
+      Order order = read_order();
+      
+      if (order == HELLO) {
+        //Ta stilling til oppkobling
+        checksum=(checksum+order);
+      } else {
+        switch (order) {
+          checksum=checksum+order;
+          
+          case REQUEST_SENSOR:
+            {
+              int8_t sensor = read_i8();
+              if (sensor >= 0 && sensor <=5) {
+                checksum = checksum+sensor;
+                int8_t received_checksum = -read_i8();
+                if (received_checksum+checksum==0){
+                  int8_t msg = analogRead(sensor);
+                  write_startbyte();
+                  write_order(SENSOR_MSG);
+                  write_i8(sensor);
+                  write_i8(msg);
+                  checksum = (START_BYTE + SENSOR_MSG+sensor+msg);
+                  write_checksum(checksum);
+              }}
+              break;
             }
-            break;
-          }
-        case ACTION_WATER_PLANT:
-          {
-            int8_t input;
-            write_order(RECEIVED);
-            input = read_i8();
-            angle.push(input);
-            break;
-          }
-        case ACTION_WATER_QUANTITY:
-          {
-            int8_t input;
-            write_order(RECEIVED);
-            input = read_i8();
-            water_quantity.push(input);
-            break;
-          }
-        default:
-          write_order(ERROR);
-          write_i16(404);
-          return;
-      }
-    }
-  }
-}
+            
+          case ACTION_WATER_PLANT:
+            {
+              uint8_t plant, amount;
+              plant = read_i8();
+              amount = read_i8();
+              checksum = checksum + plant + amount;
+              int8_t received_checksum = -read_i8();
+              if (received_checksum+checksum==0){
+                angle.push(plant);
+                water_quantity.push(amount);
+                write_startbyte();
+                write_order(RECEIVED);
+                checksum = (START_BYTE+RECEIVED);
+                write_checksum(checksum);
+              }
+              break;
+            }
+            
+        
+          default:
+            write_order(ERROR);
+            write_i16(404);
+            return;
+    }}}}}
+
+            
+         

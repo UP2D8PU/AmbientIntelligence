@@ -1,8 +1,8 @@
 #ifndef ORDER_H
 #define ORDER_H
 
-// TO DO: CHANGE THIS FROM ENUM TO DEFINE
-// Define the orders that can be sent and received
+
+
 enum Order {
   HELLO = 0,
   ALREADY_CONNECTED = 1,
@@ -14,6 +14,7 @@ enum Order {
   ACTION_WATER_PLANT = 7,
   ACTION_WATER_QUANTITY = 8,
   ACTION_STOP_WATER = 9,
+  START_BYTE = 247
 };
 
 typedef enum Order Order;
