@@ -51,32 +51,21 @@ class CommandThread(threading.Thread):
             if self.exit_event.is_set():
                 break
             try:
-                self.messages.append(self.command_queue.get_nowait())
+                order, param1,param2 = self.command_queue.get_nowait()
             except queue.Empty:
                 time.sleep(rate)
                 self.n_received_tokens.release()
                 continue
 
             with self.serial_lock:
-
-                """ 
-                write_order(self.serial_file, order)
-                write_i8(self.serial_file, param)
-                Equivalent to write_i8(serial_file, Order.MOTOR.value)
-                """
-                print("ERRORS:")
-                print(len(self.messages))
-                print(self.messages[0])
-                print(self.messages[0][0])
-                print(self.messages[0][1])
-                if self.messages[0][0] != Order.CHECKSUM:
-                    write_order(self.serial_file, self.messages[0][0])
-                    if len(self.messages) == 2:
-                        write_i8(self.serial_file, self.messages[1])
-                    if len(self.messages) == 3:
-                        write_i8(self.serial_file, self.messages[2])
+                if order != Order.CHECKSUM:
+                    write_order(self.serial_file, order)
+                    if param1 != -1:
+                        write_i8(self.serial_file, param1)
+                    if param2 != -1:
+                        write_i8(self.serial_file, param2)
                 else:
-                    write_i16(self.serial_file, self.messages[1])
+                    write_i16(self.serial_file, param1)
 
                 self.messages=[]
             time.sleep(rate)
