@@ -77,23 +77,23 @@ def decode_order(messages):
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
             if sensor == 20:
-                sensor_values["temperatur_value"] = sensor_data/10;
+                sensor_values["temperatur value"] = sensor_data/10;
             elif sensor == 21:
-                sensor_values["airhumidity_value"] = sensor_data/10;
+                sensor_values["airhumidity value"] = sensor_data/10;
             elif sensor == 2:
-                sensor_values["lightsensor_value"] = sensor_data
+                sensor_values["lightsensor value"] = sensor_data
             elif sensor == 3:
-                sensor_values["humiditysensor_1_value"] = sensor_data
+                garden["0"]["humiditysensor value"] = sensor_data
             elif sensor == 4:
-                sensor_values["humiditysensor_2_value"] = sensor_data
+                garden["1"]["humiditysensor value"] = sensor_data
             elif sensor == 5:
-                sensor_values["humiditysensor_3_value"] = sensor_data
+                garden["2"]["humiditysensor value"] = sensor_data
             elif sensor == 6:
-                sensor_values["humiditysensor_4_value"] = sensor_data
+                garden["3"]["humiditysensor value"] = sensor_data
             elif sensor == 7:
-                sensor_values["humiditysensor_5_value"] = sensor_data
+                garden["4"]["humiditysensor value"] = sensor_data
             elif sensor == 8:
-                sensor_values["humiditysensor_6_value"] = sensor_data
+                garden["5"]["humiditysensor value"] = sensor_data
 
                 sensor_values["updated"]==1
 
@@ -206,23 +206,12 @@ class WaterProgram(object):
     def daily_water(self):
         for i in range(0, 6):
             type = garden[i]["type"]
-            if type > 0:
+            if (type > 0) and (garden[i]["humiditysensor value"] <  plants[type]["humidity threshold max"]):
                 water_quantity = plants[type]["water quantity"]
                 garden[i]["water"] = water_quantity
 
     def evaluate_sensor_values(self):
-        for i in range(0, 6):
-            if self.plantList[i] > 0:
-                soil_threshold = plants[self.plantList[i]]["humidity threshold"]
-                water_quantity = plants[self.plantList[i]]["water quantity"]
-                light_intensity = plants[self.plantList[i]]["light intensity"]
-                #if self.humiditysensor_value[i] < soil_threshold:
-                #    self.wateringList.insert(i,water_quantity)
-                #if self.humiditysensor_value[i] > soil_threshold+20:
-                #    self.wateringList.insert(i,0)
-
-
-                # TODO: FINISH DENNE, oppdater etter garden elementer
+    # TODO: FINISH DENNE, oppdater etter garden elementers
 
 
 

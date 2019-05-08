@@ -3,20 +3,23 @@ plants = {
     1: {
         "name": "Rose",
         "water quantity": 10,
-        "humidity threshold": 10,
+        "humidity threshold min": 10,
+        "humidity threshold max": 10,
         "light intensity":10,
     },
     2:{
         "name":"Cactus",
         "water quantity": 10,
-        "humidity threshold": 10,
+        "humidity threshold min": 10,
+        "humidity threshold max": 10,
         "light intensity":10,
 
     },
     3:{
         "name":"Flower",
         "water quantity": 10,
-        "humidity threshold": 10,
+        "humidity threshold min": 10,
+        "humidity threshold max": 10,
         "light intensity":10,
     }
 };
@@ -62,14 +65,8 @@ garden = {
 
 sensor_values = {
         "updated":0,
-        "temperatur_value": 0,
-        "airhumidity_value": 0,
-        "lightsensor_value":0,
-        "humiditysensor_1_value": 0,
-        "humiditysensor_2_value": 0,
-        "humiditysensor_3_value": 0,
-        "humiditysensor_4_value": 0,
-        "humiditysensor_5_value": 0,
-        "humiditysensor_6_value": 0,
+        "temperatur value": 0,
+        "airhumidity value": 0,
+        "lightsensor value":0,
 
 };
