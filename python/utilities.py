@@ -62,4 +62,5 @@ def open_serial_port(serial_port=None, baudrate=115200, timeout=0, write_timeout
     #If serial port is not specified, it can be detected with get_serial_ports()
     if serial_port is None:
         serial_port = get_serial_ports()[0]
+        print(serial_port)
     return serial.Serial(port=serial_port, baudrate=baudrate, timeout=timeout, writeTimeout=write_timeout)

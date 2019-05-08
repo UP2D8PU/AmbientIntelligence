@@ -117,8 +117,8 @@ class ListenerThread(threading.Thread):
 
                 if order == Order.ERROR:
                     error = read_i16(self.serial_file)
-                    self.messages.append(self, order.value)
-                    self.messages.append(self, error)
+                    self.messages.append(order.value)
+                    self.messages.append(error)
                     decode_order(self.messages)
 
                 if self.start_received:
@@ -139,7 +139,7 @@ class ListenerThread(threading.Thread):
                         self.checksum = self.checksum + order.value
                         received_checksum = read_i16(self.serial_file)
                         if self.checksum - received_checksum == 0:
-                            self.messages.append(self, order.value)
+                            self.messages.append(order.value)
                             self.n_received_tokens.release()
                         else:
                             print("CHECKSUM ERROR")
@@ -162,5 +162,6 @@ class ListenerThread(threading.Thread):
 
                     self.checksum = 0
                     self.messages = []
+                    self.start_received = False
             time.sleep(rate)
         print("Listener Thread Exited")

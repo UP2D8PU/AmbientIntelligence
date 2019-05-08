@@ -52,7 +52,7 @@ DHT dht(DHTPIN, DHTTYPE);
   +------------------------------------------------------------------------*/
 void /**/COM_init(void)
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   dht.begin();
   pinMode(LIGHT_SENSOR, INPUT);
   pinMode(HUMIDITY_SENSOR_1, INPUT);
@@ -81,6 +81,7 @@ void wait_for_bytes(int num_bytes, uint8_t timeout)
 }
 
 Order read_order() {
+  wait_for_bytes(1, 100);
   return (Order) Serial.read();
 }
 
@@ -172,82 +173,74 @@ void COM_task(void)
         checksum = START_BYTE;
         Order order = read_order();
         checksum += order;
-        switch (order) {
-          case REQUEST_SENSOR:
-            {
-              int8_t sensor = read_i8();
-              checksum += sensor;
-              int16_t received_checksum = read_i16();
+        if (order == REQUEST_SENSOR) {
+          int8_t sensor = read_i8();
+          checksum += sensor;
+          int16_t received_checksum = read_i16();
 
-              write_startbyte();
-              write_order(RECEIVED);
-              int16_t checksum_received_message = (START_BYTE + RECEIVED);
-              write_checksum(checksum_received_message);
+          write_startbyte();
+          write_order(RECEIVED);
+          int16_t checksum_received_message = (START_BYTE + RECEIVED);
+          write_checksum(checksum_received_message);
 
-              if (checksum - received_checksum == 0) {
-                int msg = 10000;
-                if (sensor == TEMPERATURE_SENSOR) {
-                  float t = dht.readTemperature();
-                  int msg = (int)(t * 10);
-                  if (isnan(msg)) {
-                    //Print error
-                    return;
-                  }
-                } else if (sensor == AIRHUMIDITY_SENSOR) {
-                  float h = dht.readHumidity();
-                  int msg = (int)(h * 10);
-                  if (isnan(msg)) {
-                    //Print error
-                    return;
-                  }
-                } else if (sensor == LIGHT_SENSOR) {
-                  int msg = analogRead(LIGHT_SENSOR);
-                } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
-                  int msg = digitalRead(sensor);
-                }
-                if (msg != 10000) {
-                  write_startbyte();
-                  write_order(SENSOR_MSG);
-                  write_i8(sensor);
-                  write_i16(msg);
-                  checksum = (START_BYTE + SENSOR_MSG + sensor + msg);
-                  write_checksum(checksum);
-                } else {
-                  write_order(ERROR);
-                  write_i16(404);
-                  return;
-                }
+          if (checksum - received_checksum == 0) {
+            int msg = 10000;
+            if (sensor == TEMPERATURE_SENSOR) {
+              float t = dht.readTemperature();
+              int msg = (int)(t * 10);
+              if (isnan(msg)) {
+                //Print error
+                return;
               }
-
-              break;
-            }
-
-          case ACTION_WATER_PLANT:
-            {
-              uint8_t plant, amount;
-              plant = read_i8();
-              amount = read_i8();
-              checksum = checksum + plant + amount;
-              int16_t received_checksum = read_i16();
-         
-              write_startbyte();
-              write_order(RECEIVED);
-              int16_t checksum_to_send = (START_BYTE + RECEIVED);
-              write_checksum(checksum_to_send);
-              
-              if (received_checksum - checksum == 0) {
-                angle_queue.push(plant);
-                water_quantity_queue.push(amount);
-
+            } else if (sensor == AIRHUMIDITY_SENSOR) {
+              float h = dht.readHumidity();
+              int msg = (int)(h * 10);
+              if (isnan(msg)) {
+                //Print error
+                return;
               }
-              break;
+            } else if (sensor == LIGHT_SENSOR) {
+              int msg = analogRead(LIGHT_SENSOR);
+            } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
+              int msg = digitalRead(sensor);
             }
+            if (msg != 10000) {
+              write_startbyte();
+              write_order(SENSOR_MSG);
+              write_i8(sensor);
+              write_i16(msg);
+              checksum = (START_BYTE + SENSOR_MSG + sensor + msg);
+              write_checksum(checksum);
+            } else {
+              write_order(ERROR);
+              write_i16(404);
+              return;
+            }
+          }
+        }
 
+        else if (order == ACTION_WATER_PLANT)
+        {
+          uint8_t plant, amount;
+          plant = read_i8();
+          amount = read_i8();
+          checksum = checksum + plant + amount;
+          int16_t received_checksum = read_i16();
 
-          default:
-            write_order(ERROR);
-            write_i16(404);
-            return;
+          write_startbyte();
+          write_order(RECEIVED);
+          int16_t checksum_to_send = (START_BYTE + RECEIVED);
+          write_checksum(checksum_to_send);
+
+          if (received_checksum - checksum == 0) {
+            angle_queue.push(plant);
+            water_quantity_queue.push(amount);
+
+          }
+        } else {
+          write_order(ERROR);
+          write_i16(404);
+          return;
         }
       }
     }

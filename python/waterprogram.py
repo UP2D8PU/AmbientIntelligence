@@ -10,8 +10,8 @@ from python.database import *  # plants, garden
 
 
 class Order(Enum):
-    START_BYTE = -120
-    HELLO = 0
+    START_BYTE = 120
+    HELLO = 10
     ALREADY_CONNECTED = 1
     ERROR = 2
     RECEIVED = 3
@@ -30,7 +30,6 @@ def read_order(f):
 
 
 def read_i8(f):
-    print(f.read(1))
     return struct.unpack('<b', bytearray(f.read(1)))[0]
 
 
@@ -63,21 +62,25 @@ def generate_checksum(list):
 def decode_order(messages):
     debug = False
     try:
-        order = Order(messages[0])
-        if order == Order.START_BYTE:
+        order = (messages[0])
+        print(type(order))
+        print(type(Order.ERROR.value))
+        print(type(order - Order.ERROR.value))
+        if order == Order.START_BYTE.value:
             msg = "START MSG"
-        if order == Order.HELLO:
+        elif order == Order.HELLO.value:
             msg = "HELLO"
-        elif order == Order.ALREADY_CONNECTED:
+        elif order == Order.ALREADY_CONNECTED.value:
             msg = "ALREADY_CONNECTED"
-        elif order == Order.ERROR:
-            error_code = read_i16(messages[1])
+        elif order == Order.ERROR.value:
+            error_code = (messages[1])
             msg = "Error {}".format(error_code)
-        elif order == Order.RECEIVED:
+            print(msg)
+        elif order == Order.RECEIVED.value:
             msg = "ARDUINO RECEIVED"
-        elif order == Order.START_BYTE:
+        elif order == Order.START_BYTE.value:
             msg = "START"
-        elif order == Order.SENSOR_MSG:
+        elif order == Order.SENSOR_MSG.value:
             sensor = messages[1]
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
@@ -151,6 +154,7 @@ class WaterProgram(object):
                 time.sleep(2)
                 continue
             byte = bytes_array[0]
+            print(byte)
             if byte in [Order.HELLO.value, Order.ALREADY_CONNECTED.value]:
                 is_connected = True
 

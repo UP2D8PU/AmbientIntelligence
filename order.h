@@ -4,7 +4,7 @@
 
 
 enum Order {
-  HELLO = 0,
+  HELLO = 10,
   ALREADY_CONNECTED = 1,
   ERROR = 2,
   RECEIVED = 3,
@@ -13,7 +13,7 @@ enum Order {
   SENSOR_MSG = 6,
   ACTION_WATER_PLANT = 7,
 
-  START_BYTE = -120,
+  START_BYTE = 120,
   
 };
 
