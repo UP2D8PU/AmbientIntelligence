@@ -88,10 +88,25 @@ int8_t read_i8() {
   wait_for_bytes(1, 100); // Wait for 1 byte with a timeout of 100 ms
   return (int8_t) Serial.read();
 }
-
+void read_signed_bytes(int8_t* buffer, size_t n)
+{
+  size_t i = 0;
+  int c;
+  while (i < n)
+  {
+    c = Serial.read();
+    if (c < 0) break;
+    *buffer++ = (int8_t) c; // buffer[i] = (int8_t)c;
+    i++;
+  }
+}
 //Not understanding this
 int16_t read_i16()
 {
+  int8_t buffer[2];
+  wait_for_bytes(2, 100); // Wait for 2 bytes with a timeout of 100 ms
+  read_signed_bytes(buffer, 2);
+  return (((int16_t) buffer[0]) & 0xff) | (((int16_t) buffer[1]) << 8 & 0xff00);
 }
 
 float read_float() {}
@@ -120,9 +135,9 @@ void write_startbyte()
   write_order(START_BYTE);
 }
 
-void write_checksum(uint8_t checksum)
+void write_checksum(uint16_t checksum)
 {
-  write_i8(checksum);
+  write_i16(checksum);
 }
 
 void write_order(enum Order order)
@@ -133,10 +148,8 @@ void write_order(enum Order order)
 
 void COM_task(void)
 {
-  Order read_order(void);
   if (Serial.available() > 0) {
-
-    uint8_t checksum = 0 ;
+    uint16_t checksum = 0 ;
     Order order_received = read_order();
 
     if (order_received == HELLO) {
@@ -158,12 +171,12 @@ void COM_task(void)
       if (order_received == START_BYTE) {
         checksum = START_BYTE;
         Order order = read_order();
-        checksum = checksum + order;
+        checksum += order;
         switch (order) {
           case REQUEST_SENSOR:
             {
               int8_t sensor = read_i8();
-              checksum = checksum + sensor;
+              checksum += sensor;
               int16_t received_checksum = read_i16();
 
               write_startbyte();
@@ -205,35 +218,38 @@ void COM_task(void)
                   return;
                 }
               }
-            
-            break;
+
+              break;
+            }
+
+          case ACTION_WATER_PLANT:
+            {
+              uint8_t plant, amount;
+              plant = read_i8();
+              amount = read_i8();
+              checksum = checksum + plant + amount;
+              int16_t received_checksum = read_i16();
+         
+              write_startbyte();
+              write_order(RECEIVED);
+              int16_t checksum_to_send = (START_BYTE + RECEIVED);
+              write_checksum(checksum_to_send);
+              
+              if (received_checksum - checksum == 0) {
+                angle_queue.push(plant);
+                water_quantity_queue.push(amount);
+
+              }
+              break;
+            }
+
+
+          default:
+            write_order(ERROR);
+            write_i16(404);
+            return;
         }
-
-      case ACTION_WATER_PLANT:
-        {
-          uint8_t plant, amount;
-          plant = read_i8();
-          amount = read_i8();
-          checksum = checksum + plant + amount;
-          int8_t received_checksum = read_i16();
-          if (received_checksum - checksum == 0) {
-            angle_queue.push(plant);
-            water_quantity_queue.push(amount);
-            write_startbyte();
-            write_order(RECEIVED);
-            checksum = (START_BYTE + RECEIVED);
-            write_checksum(checksum);
-          }
-          break;
-        }
-
-
-      default:
-        write_order(ERROR);
-        write_i16(404);
-        return;
       }
     }
   }
-}
 }
