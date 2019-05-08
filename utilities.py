@@ -42,7 +42,8 @@ def get_serial_ports():
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('darwin'):
-        ports = glob.glob('/dev/tty.*')
+        ports = glob.glob('/dev/tty.usbmodem1421')
+        # or usbmodem1411
     else:
         raise EnvironmentError('Unsupported platform')
 

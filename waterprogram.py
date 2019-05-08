@@ -42,7 +42,7 @@ def write_i8(f, value):
 
 
 def write_order(f, order):
-    write_i8(f, Order.order.value)
+    write_i8(f, order.value)
 
 
 def write_i16(f, value):
@@ -137,6 +137,7 @@ class WaterProgram(object):
             print("Waiting for arduino...")
             write_order(ser, Order.HELLO)
             bytes_array = bytearray(ser.read(1))
+            print(len(bytes_array))
             if not bytes_array:
                 time.sleep(2)
                 continue
