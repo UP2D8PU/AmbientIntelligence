@@ -5,8 +5,8 @@ import time
 
 import serial
 
-from waterprogram import *# write_order, Order, write_i8, decode_order
-from utilities import *# queue
+from python.waterprogram import *# write_order, Order, write_i8, decode_order
+from python.utilities import *# queue
 
 rate = 1 / 2000  # 2000 Hz (limit the rate of communication with the arduino)
 
@@ -37,7 +37,7 @@ class CommandThread(threading.Thread):
         self.exit_event = exit_event
         self.n_received_tokens = n_received_tokens
         self.serial_lock = serial_lock
-        list = []
+        self.messages = []
     """
     Method representing the thread’s activity.
     You may override this method in a subclass. 
@@ -51,26 +51,23 @@ class CommandThread(threading.Thread):
             if self.exit_event.is_set():
                 break
             try:
-                list = self.command_queue.get_nowait()
+                order, param1,param2 = self.command_queue.get_nowait()
             except queue.Empty:
                 time.sleep(rate)
                 self.n_received_tokens.release()
                 continue
 
             with self.serial_lock:
+                if order != Order.CHECKSUM:
+                    write_order(self.serial_file, order)
+                    if param1 != -1:
+                        write_i8(self.serial_file, param1)
+                    if param2 != -1:
+                        write_i8(self.serial_file, param2)
+                else:
+                    write_i16(self.serial_file, param1)
 
-                """ 
-                write_order(self.serial_file, order)
-                write_i8(self.serial_file, param)
-                Equivalent to write_i8(serial_file, Order.MOTOR.value)
-                """
-
-                if type(list[0]) != str:
-                    write_order(self.serial_file, list[0])
-                if type(list[1]) != str:
-                    write_i8(self.serial_file, list[1])
-                if len(list) == 3:
-                    write_i8(self.serial_file, list[2])
+                self.messages=[]
             time.sleep(rate)
         print("Command Thread Exited")
 
@@ -101,7 +98,6 @@ class ListenerThread(threading.Thread):
         while not self.exit_event.is_set():
             try:
                 start_byte = bytearray(self.serial_file.read(1))
-                print(start_byte)
             except serial.SerialException:
                 time.sleep(rate)
                 continue
@@ -166,4 +162,3 @@ class ListenerThread(threading.Thread):
                     self.messages = []
             time.sleep(rate)
         print("Listener Thread Exited")
-
