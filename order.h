@@ -12,10 +12,8 @@ enum Order {
   REQUEST_SENSOR = 5,
   SENSOR_MSG = 6,
   ACTION_WATER_PLANT = 7,
-  ACTION_WATER_QUANTITY = 8,
-  ACTION_STOP_WATER = 9,
+
   START_BYTE = 247,
-  CHECKSUM = 100
 };
 
 typedef enum Order Order;
