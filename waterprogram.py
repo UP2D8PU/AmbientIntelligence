@@ -75,25 +75,25 @@ def decode_order(messages):
             sensor_data = read_i8(messages[2])
             msg = "sensormsg {}".format(sensor_data)
             if sensor == 0:
-                WaterProgram2.temperatur_value = sensor_data
+                WaterProgram.temperatur_value = sensor_data
             elif sensor == 1:
-                WaterProgram2.airhumidity_value = sensor_data
+                WaterProgram.airhumidity_value = sensor_data
             elif sensor == 2:
-                WaterProgram2.lightsensor_value = sensor_data
+                WaterProgram.lightsensor_value = sensor_data
             elif sensor == 3:
-                WaterProgram2.humiditysensor_value[0] = sensor_data
+                WaterProgram.humiditysensor_value[0] = sensor_data
             elif sensor == 4:
-                WaterProgram2.humiditysensor_value[1] = sensor_data
+                WaterProgram.humiditysensor_value[1] = sensor_data
             elif sensor == 5:
-                WaterProgram2.humiditysensor_value[2] = sensor_data
+                WaterProgram.humiditysensor_value[2] = sensor_data
             elif sensor == 6:
-                WaterProgram2.humiditysensor_value[3] = sensor_data
+                WaterProgram.humiditysensor_value[3] = sensor_data
             elif sensor == 7:
-                WaterProgram2.humiditysensor_value[4] = sensor_data
+                WaterProgram.humiditysensor_value[4] = sensor_data
             elif sensor == 8:
-                WaterProgram2.humiditysensor_value[5] = sensor_data
+                WaterProgram.humiditysensor_value[5] = sensor_data
             elif sensor == 9:
-                WaterProgram2.humiditysensor_value[6] = sensor_data
+                WaterProgram.humiditysensor_value[6] = sensor_data
             else:
                 msg=""
                 print("Unknown Sensor",sensor)
@@ -262,5 +262,5 @@ class WaterProgram2(object):
 
 
 if __name__ =="__main__":
-    main = WaterProgram2()
+    main = WaterProgram()
     main.run()
