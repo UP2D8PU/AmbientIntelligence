@@ -44,8 +44,8 @@ void /**/WATER_task(void){
     //NEED TO HANDLDE TIME
     uint8_t a;
     uint8_t q;
-    a=angle.pop();
-    q=water_quantity.pop();
+    a= angle.pop();
+    q= water_quantity.pop();
     UPDATE_motor(a);
     delay(10);     
     uint8_t duration = q/flow_rate;

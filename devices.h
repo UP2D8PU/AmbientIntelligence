@@ -12,7 +12,6 @@
 
 // Define digital pins for actuators
 #define STEPPERMOTOR 10 // pin 10 is PMW - analog. White wire Must also be connected to 5V and GND
-#define MOTOR_INIT 90
 #define WATERPUMP 4 // digital
 
 

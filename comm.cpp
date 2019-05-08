@@ -138,8 +138,8 @@ void COM_task(void)
               int8_t sensor = read_i8();
               if (sensor >= 0 && sensor <=5) {
                 checksum = checksum+sensor;
-                int8_t received_checksum = -read_i8();
-                if (received_checksum+checksum==0){
+                int8_t received_checksum = read_i8();
+                if (received_checksum-checksum==0){
                   int8_t msg = analogRead(sensor);
                   write_startbyte();
                   write_order(SENSOR_MSG);
@@ -157,8 +157,8 @@ void COM_task(void)
               plant = read_i8();
               amount = read_i8();
               checksum = checksum + plant + amount;
-              int8_t received_checksum = -read_i8();
-              if (received_checksum+checksum==0){
+              int8_t received_checksum = read_i8();
+              if (received_checksum-checksum==0){
                 angle.push(plant);
                 water_quantity.push(amount);
                 write_startbyte();
