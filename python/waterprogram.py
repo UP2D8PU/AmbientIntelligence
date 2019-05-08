@@ -42,7 +42,9 @@ def write_i8(f, value):
 
 
 def write_order(f, order):
-    write_i8(f, Order.order.value)
+    print("ORDER")
+    print(order)
+    write_i8(f, order.value)
 
 
 def write_i16(f, value):
@@ -162,43 +164,43 @@ class WaterProgram(object):
             t.start()
 
     def water_plant(self, angle, quantity):
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.ACTION_WATER_PLANT, angle, quantity))
         checksum = generate_checksum([Order.ACTION_WATER_PLANT.value,angle,quantity])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
 
     def retrieve_all_sensordata(self):
-        self.command_queue.put(Order.START_BYTE, "S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.TEMPERATURE_SENSOR])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
 
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.AIRHUMIDITY_SENSOR))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.AIRHUMIDITY_SENSOR])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.LIGHT_SENSOR))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_2])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
-        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put(Order.START_BYTE)
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_3))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_3])
-        self.command_queue.put("C",checksum)
+        self.command_queue.put(Order.CHECKSUM,checksum)
 
         #Humidity sensor 4,5,6 should be added in the real system.
 
