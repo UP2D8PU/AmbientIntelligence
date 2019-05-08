@@ -58,8 +58,9 @@ class CommandThread(threading.Thread):
                 continue
 
             with self.serial_lock:
-                if order != Order.CHECKSUM:
+                if order.value != Order.CHECKSUM.value:
                     write_order(self.serial_file, order)
+                    print("order written " + str(order.value))
                     if param1 != -1:
                         write_i8(self.serial_file, param1)
                     if param2 != -1:
@@ -105,7 +106,6 @@ class ListenerThread(threading.Thread):
                 time.sleep(rate)
                 continue
             start = start_byte[0]
-
             with self.serial_lock:
                 try:
                     order = Order(start)
@@ -135,11 +135,11 @@ class ListenerThread(threading.Thread):
                     except ValueError:
                         continue
                     if order == Order.RECEIVED:
+                        print("Recieved message")
                         self.checksum = self.checksum + order.value
                         received_checksum = read_i16(self.serial_file)
                         if self.checksum - received_checksum == 0:
                             self.messages.append(self, order.value)
-                            decode_order(self.messages)
                             self.n_received_tokens.release()
                         else:
                             print("CHECKSUM ERROR")

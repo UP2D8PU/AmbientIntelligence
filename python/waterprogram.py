@@ -15,13 +15,12 @@ class Order(Enum):
     ALREADY_CONNECTED = 1
     ERROR = 2
     RECEIVED = 3
-    STOP = 4
+    CHECKSUM = 4
 
     REQUEST_SENSOR = 5
     SENSOR_MSG = 6
     ACTION_WATER_PLANT = 7
     ACTION_WATER_QUANTITY = 8
-    CHECKSUM = 100
     # ACTION_STOP_WATER = 9
     # WATERING_FINISHED = 10
 
@@ -132,6 +131,7 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_4 = 6
         self.HUMIDITY_SENSOR_5 = 7
         self.HUMIDITY_SENSOR_6 = 8
+        self.test = True
 
         self.air_humidity_threshold  = 85
         self.temperature_threshold = 20
@@ -174,6 +174,7 @@ class WaterProgram(object):
         self.command_queue.put((Order.START_BYTE, -1, -1))
         self.command_queue.put((Order.ACTION_WATER_PLANT, angle, quantity))
         checksum = generate_checksum([Order.ACTION_WATER_PLANT.value, angle, quantity])
+        print(checksum)
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
     def retrieve_all_sensordata(self):
@@ -234,15 +235,19 @@ class WaterProgram(object):
             schedule.every(10).minutes.do(self.retrieve_all_sensordata)
             schedule.every().day.at("12:00").do(self.daily_water)
 
-            self.evaluate_sensor_values()
+            #self.evaluate_sensor_values()
 
             # TODO: hente ting fra nett: legge inn nye planter i hagen vanningsordre
             # TODO: sende data til nett
 
-            for i in range(0, 6):
-                if garden[i]["water"] > 0:
-                    self.water_plant(garden[i]["angle"], garden[i]["water"])
-                    garden[i]["water"] = 0
+            if self.test:
+                self.water_plant(0,10)
+                self.test=False
+
+            #for i in range(0, 6):
+            #    if garden[i]["water"] > 0:
+            #        self.water_plant(garden[i]["angle"], garden[i]["water"])
+            #        garden[i]["water"] = 0
 
             if (web == True):
                 x = 1
