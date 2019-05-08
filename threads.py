@@ -91,7 +91,6 @@ class ListenerThread(threading.Thread):
         self.start_received = False
         self.messages = []
         self.checksum = 0
-        self.byte_array = []
 
     def run(self):
         while not self.exit_event.is_set():
@@ -103,7 +102,7 @@ class ListenerThread(threading.Thread):
             if not start_byte:
                 time.sleep(rate)
                 continue
-            start_byte = start_byte[0]
+            start_byte = read_i8(start_byte[0])
             with self.serial_lock:
                 try:
                     order = Order(start_byte)
@@ -112,26 +111,48 @@ class ListenerThread(threading.Thread):
 
                 if order == Order.START_BYTE:
                     self.start_received = True
+                    self.checksum = Order.START_BYTE.value
 
                 if self.start_received:
                     try:
-                        byte_array = bytearray(self.serial_file.read_until(Order.CHECKSUM.value, size=None))
+                        order_byte = bytearray(self.serial_file.read(1))[0]
                     except serial.SerialException:
                         time.sleep(rate)
                         continue
-                    if not byte_array:
+                    if not order_byte:
                         time.sleep(rate)
                         continue
+                    try:
+                        order = read_i8(order_byte)
+                    except ValueError:
+                        continue
+                    if order == Order.RECEIVED.value:
+                        self.checksum = self.checksum + order
+                        received_checksum = read_i8(bytearray(self.serial_file.read(1)))
+                        self.messages.append(self,order)
+                        if self.checksum - received_checksum == 0:
+                            self.n_received_tokens.release()
+                            decode_order(self.messages)
+                        else:
+                            print("CHECKSUM ERROR")
 
-                    for i in byte_array:
-                        byte = i
-                        self.checksum = self.checksum + byte
-                        self.messages.append(self, byte)
-                    received_checksum = bytearray(self.serial_file.read(1))
-                    received_checksum = received_checksum[0]
-                    if self.checksum-received_checksum == 0:
-                        decode_order(self.messages)
-                    self.n_received_tokens.release()
+                    if order == Order.SENSOR_MSG.value:
+                        sensor = read_i8(bytearray(self.serial_file.read(1)))
+                        value = read_i16(bytearray(self.serial_file.read(2)))
+                        received_checksum = read_i8(bytearray(self.serial_file.read(1)))
+
+                        self.checksum = self.checksum + order +sensor + value
+                        if self.checksum-received_checksum == 0:
+                            self.messages.append(self, order)
+                            self.messages.append(self, sensor)
+                            self.messages.append(self, value)
+                            decode_order(self.messages)
+
+                        else:
+                            print("CHECKSUM ERROR")
+                    if order == Order.ERROR.value:
+                        error = read_i16(bytearray(self.serial_file.read(2)))
+                        decode_order(error)
                     self.checksum = 0
                     self.messages = []
             time.sleep(rate)

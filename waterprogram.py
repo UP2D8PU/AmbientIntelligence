@@ -42,7 +42,7 @@ def write_i8(f, value):
 
 
 def write_order(f, order):
-    write_i8(f, order.value)
+    write_i8(f, Order.order.value)
 
 
 def write_i16(f, value):
@@ -62,14 +62,12 @@ def decode_order(messages):
         elif order == Order.ERROR:
             error_code = read_i16(messages[1])
             msg = "Error {}".format(error_code)
-        #elif order == Order.RECEIVED:
-        #    msg = "ARDUINO RECEIVED"
+        elif order == Order.RECEIVED:
+            msg = "ARDUINO RECEIVED"
         #elif order == Order.STOP:
         #    msg = "STOP"
         elif order == Order.START_BYTE:
             msg = "START"
-        elif order == Order.CHECKSUM:
-            msg = "CHECKSUM"
         elif order == Order.SENSOR_MSG:
             sensor = read_i8(messages[1])
             sensor_data = read_i8(messages[2])
@@ -152,8 +150,8 @@ class WaterProgram(object):
         print("Connected to Arduino")
 
 
-        self.command_queue = CustomQueue(10)
-        self.n_messages_allowed = 5
+        self.command_queue = CustomQueue(20)
+        self.n_messages_allowed = 10
         self.n_received_tokens = threading.Semaphore(self.n_messages_allowed)
         self.serial_lock = threading.Lock()
         self.exit_event = threading.Event()
