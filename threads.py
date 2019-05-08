@@ -37,6 +37,7 @@ class CommandThread(threading.Thread):
         self.exit_event = exit_event
         self.n_received_tokens = n_received_tokens
         self.serial_lock = serial_lock
+        list = []
     """
     Method representing the thread’s activity.
     You may override this method in a subclass. 
@@ -50,7 +51,7 @@ class CommandThread(threading.Thread):
             if self.exit_event.is_set():
                 break
             try:
-                order, param = self.command_queue.get_nowait()
+                list = self.command_queue.get_nowait()
             except queue.Empty:
                 time.sleep(rate)
                 self.n_received_tokens.release()
@@ -64,8 +65,12 @@ class CommandThread(threading.Thread):
                 Equivalent to write_i8(serial_file, Order.MOTOR.value)
                 """
 
-                write_order(self.serial_file, order)
-                write_i8(self.serial_file, param)
+                if type(list[0]) != str:
+                    write_order(self.serial_file, list[0])
+                if type(list[1]) != str:
+                    write_i8(self.serial_file, list[1])
+                if len(list) == 3:
+                    write_i8(self.serial_file, list[2])
             time.sleep(rate)
         print("Command Thread Exited")
 

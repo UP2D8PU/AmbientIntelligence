@@ -40,13 +40,18 @@ def write_i8(f, value):
     else:
         print("Value error:{}".format(value))
 
-
 def write_order(f, order):
     write_i8(f, order.value)
 
 
 def write_i16(f, value):
     f.write(struct.pack('<h', value))
+
+def generate_checksum(list):
+    checksum = int(Order.START_BYTE.value)
+    for i in list:
+        checksum = checksum + i
+    return checksum
 
 
 def decode_order(messages):
@@ -62,38 +67,32 @@ def decode_order(messages):
         elif order == Order.ERROR:
             error_code = read_i16(messages[1])
             msg = "Error {}".format(error_code)
-        #elif order == Order.RECEIVED:
-        #    msg = "ARDUINO RECEIVED"
-        #elif order == Order.STOP:
-        #    msg = "STOP"
+        elif order == Order.RECEIVED:
+            msg = "ARDUINO RECEIVED"
         elif order == Order.START_BYTE:
             msg = "START"
-        elif order == Order.CHECKSUM:
-            msg = "CHECKSUM"
         elif order == Order.SENSOR_MSG:
-            sensor = read_i8(messages[1])
-            sensor_data = read_i8(messages[2])
+            sensor = messages[1]
+            sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
-            if sensor == 0:
-                WaterProgram.temperatur_value = sensor_data
-            elif sensor == 1:
-                WaterProgram.airhumidity_value = sensor_data
+            if sensor == 20:
+                sensor_values["temperatur_value"] = sensor_data/10;
+            elif sensor == 21:
+                sensor_values["airhumidity_value"] = sensor_data/10;
             elif sensor == 2:
-                WaterProgram.lightsensor_value = sensor_data
+                sensor_values["lightsensor_value"] = sensor_data
             elif sensor == 3:
-                WaterProgram.humiditysensor_value[0] = sensor_data
+                sensor_values["humiditysensor_1_value"] = sensor_data
             elif sensor == 4:
-                WaterProgram.humiditysensor_value[1] = sensor_data
+                sensor_values["humiditysensor_2_value"] = sensor_data
             elif sensor == 5:
-                WaterProgram.humiditysensor_value[2] = sensor_data
+                sensor_values["humiditysensor_3_value"] = sensor_data
             elif sensor == 6:
-                WaterProgram.humiditysensor_value[3] = sensor_data
+                sensor_values["humiditysensor_4_value"] = sensor_data
             elif sensor == 7:
-                WaterProgram.humiditysensor_value[4] = sensor_data
+                sensor_values["humiditysensor_5_value"] = sensor_data
             elif sensor == 8:
-                WaterProgram.humiditysensor_value[5] = sensor_data
-            elif sensor == 9:
-                WaterProgram.humiditysensor_value[6] = sensor_data
+                sensor_values["humiditysensor_6_value"] = sensor_data
 
                 sensor_values["updated"]==1
 
@@ -116,20 +115,15 @@ def addtoq(self,element):
 
 class WaterProgram(object):
     def __init__(self):
-        self.TEMPERATURE_SENSOR = 0
-        self.AIRHUMIDITY_SENSOR=1
+        self.TEMPERATURE_SENSOR = 20
+        self.AIRHUMIDITY_SENSOR=21
         self.LIGHT_SENSOR = 2
         self.HUMIDITY_SENSOR_1=3
         self.HUMIDITY_SENSOR_2=4
         self.HUMIDITY_SENSOR_3=5
-
-        #Sensorvalues now in dictionary
-        #TODO: Oppdatere resten av denne koden til aa fungere med dictionary
-        #self.temperatur_value = 0
-        #self.airhumidity_value=0
-        #self.lightsensor_value=0
-        #self.humiditysensor_value = [0,0,0,0,0,0,0]
-
+        self.HUMIDITY_SENSOR_4=6
+        self.HUMIDITY_SENSOR_5=7
+        self.HUMIDITY_SENSOR_6=8
 
 
         try:
@@ -152,7 +146,7 @@ class WaterProgram(object):
         print("Connected to Arduino")
 
 
-        self.command_queue = CustomQueue(10)
+        self.command_queue = CustomQueue(20)
         self.n_messages_allowed = 5
         self.n_received_tokens = threading.Semaphore(self.n_messages_allowed)
         self.serial_lock = threading.Lock()
@@ -167,23 +161,45 @@ class WaterProgram(object):
             t.start()
 
     def water_plant(self, angle, quantity):
-        self.command_queue.put(Order.START_BYTE)
-        self.command_queue.put((Order.ACTION_WATER_PLANT, angle))
-        self.command_queue.put((Order.ACTION_WATER_QUANTITY, quantity))
-        checksum = self.generate_checksum([Order.ACTION_WATER_PLANT.value,angle,Order.ACTION_WATER_QUANTITY.value,quantity])
-        self.command_queue.put(Order.CHECKSUM, checksum)
+        self.command_queue.put(Order.START_BYTE,"S")
+        self.command_queue.put((Order.ACTION_WATER_PLANT, angle, quantity))
+        checksum = generate_checksum([Order.ACTION_WATER_PLANT.value,angle,quantity])
+        self.command_queue.put("C",checksum)
 
 
     def retrieve_all_sensordata(self):
-        self.command_queue.put(Order.START_BYTE)
+        self.command_queue.put(Order.START_BYTE, "S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.TEMPERATURE_SENSOR])
+        self.command_queue.put("C",checksum)
+
+
+        self.command_queue.put(Order.START_BYTE,"S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.AIRHUMIDITY_SENSOR))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.AIRHUMIDITY_SENSOR])
+        self.command_queue.put("C",checksum)
+
+        self.command_queue.put(Order.START_BYTE,"S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.LIGHT_SENSOR))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
+        self.command_queue.put("C",checksum)
+
+        self.command_queue.put(Order.START_BYTE,"S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
+        self.command_queue.put("C",checksum)
+
+        self.command_queue.put(Order.START_BYTE,"S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_2])
+        self.command_queue.put("C",checksum)
+
+        self.command_queue.put(Order.START_BYTE,"S")
         self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_3))
-        checksum = self.generate_checksum([Order.REQUEST_SENSOR.value * 6 ,self.TEMPERATURE_SENSOR,self.AIRHUMIDITY_SENSOR,self.LIGHT_SENSOR,self.HUMIDITY_SENSOR_1, self.HUMIDITY_SENSOR_2, self.HUMIDITY_SENSOR_3])
-        self.command_queue.put(Order.CHECKSUM, checksum)
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_3])
+        self.command_queue.put("C",checksum)
+
+        #Humidity sensor 4,5,6 should be added in the real system.
 
 
     def daily_water(self):
@@ -199,10 +215,10 @@ class WaterProgram(object):
                 soil_threshold = plants[self.plantList[i]]["humidity threshold"]
                 water_quantity = plants[self.plantList[i]]["water quantity"]
                 light_intensity = plants[self.plantList[i]]["light intensity"]
-                if self.humiditysensor_value[i] < soil_threshold:
-                    self.wateringList.insert(i,water_quantity)
-                if self.humiditysensor_value[i] > soil_threshold+20:
-                    self.wateringList.insert(i,0)
+                #if self.humiditysensor_value[i] < soil_threshold:
+                #    self.wateringList.insert(i,water_quantity)
+                #if self.humiditysensor_value[i] > soil_threshold+20:
+                #    self.wateringList.insert(i,0)
 
 
                 # TODO: FINISH DENNE, oppdater etter garden elementer
@@ -220,27 +236,14 @@ class WaterProgram(object):
             # TODO: hente ting fra nett: legge inn nye planter i hagen vanningsordre
             # TODO: sende data til nett
 
-            if(web == True):
-                x=1
-
             for i in range(0,6):
                 if garden[i]["water"] > 0:
                     self.water_plant(garden[i]["angle"],garden[i]["water"])
                     garden[i]["water"]=0
 
 
-
-
-
-
-    def generate_checksum(self,orderlist):
-        checksum = Order.START_BYTE.value
-        for i in range(0,len(orderlist)):
-            checksum = checksum + orderlist(i)
-        return checksum
-
-
-
+            if(web == True):
+                x=1
 
 
 
@@ -264,10 +267,10 @@ class WaterProgram(object):
 
 
 
-#def main():
-#    wp = WaterProgram()
-#    wp.run()
+def main():
+    wp = WaterProgram()
+    wp.run()
 
 
-#if __name__ =="__main__":
-#    main()
+if __name__ =="__main__":
+    main()
