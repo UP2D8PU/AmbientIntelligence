@@ -94,6 +94,9 @@ def decode_order(messages):
                 WaterProgram.humiditysensor_value[5] = sensor_data
             elif sensor == 9:
                 WaterProgram.humiditysensor_value[6] = sensor_data
+
+                sensor_values["updated"]==1
+
             else:
                 msg=""
                 print("Unknown Sensor",sensor)
@@ -111,7 +114,7 @@ def addtoq(self,element):
     self.queue.insert(0,element)
 
 
-class WaterProgram2(object):
+class WaterProgram(object):
     def __init__(self):
         self.TEMPERATURE_SENSOR = 0
         self.AIRHUMIDITY_SENSOR=1
@@ -120,10 +123,12 @@ class WaterProgram2(object):
         self.HUMIDITY_SENSOR_2=4
         self.HUMIDITY_SENSOR_3=5
 
-        self.temperatur_value = 0
-        self.airhumidity_value=0
-        self.lightsensor_value=0
-        self.humiditysensor_value = [0,0,0,0,0,0,0]
+        #Sensorvalues now in dictionary
+        #TODO: Oppdatere resten av denne koden til aa fungere med dictionary
+        #self.temperatur_value = 0
+        #self.airhumidity_value=0
+        #self.lightsensor_value=0
+        #self.humiditysensor_value = [0,0,0,0,0,0,0]
 
 
 
@@ -207,7 +212,7 @@ class WaterProgram2(object):
     def run(self):
         web = False
         while True:
-            schedule.every(1).minutes.do(self.retrieve_all_sensordata())
+            schedule.every(10).minutes.do(self.retrieve_all_sensordata())
             schedule.every().day.at("12:00").do(self.daily_water)
 
             self.evaluate_sensor_values()
@@ -259,8 +264,10 @@ class WaterProgram2(object):
 
 
 
+#def main():
+#    wp = WaterProgram()
+#    wp.run()
 
 
-if __name__ =="__main__":
-    main = WaterProgram()
-    main.run()
+#if __name__ =="__main__":
+#    main()
