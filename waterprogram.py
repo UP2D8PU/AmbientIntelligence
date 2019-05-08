@@ -40,8 +40,9 @@ def write_i8(f, value):
     else:
         print("Value error:{}".format(value))
 
+
 def write_order(f, order):
-    write_i8(f, order.value)
+    write_i8(f, Order.order.value)
 
 
 def write_i16(f, value):
