@@ -1,3 +1,4 @@
+#include "order.h"
 #ifndef _COM_TASK_
 /* ::extern vars **/
 
@@ -8,5 +9,7 @@ extern uint8_t BYTE_timer;
 
 void COM_init(void);
 void COM_task(void);
+
+
 
 #endif

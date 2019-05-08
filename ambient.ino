@@ -3,6 +3,7 @@
 #include "devices.h"
 #include "queue.h"
 
+
 // TO DO: Implement communication code med startsum og checksum
 void setup() {
  

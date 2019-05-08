@@ -28,7 +28,7 @@
 /* ::define **/
 
 
-/* Variáveis globais ::vars **/
+/* Variables **/
 
 uint8_t COM_timer;  /* 10 ms */
 uint8_t BYTE_timer;  /* 10 ms */
@@ -36,6 +36,13 @@ QueueArray <int8_t> angle_queue = 0; //Unit: degrees
 QueueArray <int8_t> water_quantity_queue = 0; //Unit:liters
 uint8_t checksum;
 bool message_received;
+bool is_connected;
+
+
+/* Functions for init**/
+void write_order(enum Order order);
+void COM_task(void);
+void wait_for_bytes(int num_bytes, uint8_t timeout);
 
 
 
@@ -49,15 +56,14 @@ void /**/COM_init(void)
   dht.begin();
   pinMode(LIGHT_SENSOR, INPUT);
   pinMode(HUMIDITY_SENSOR_1, INPUT);
-#if 0
-  bool is_connected = true;
+  
+  bool is_connected = false;
   while (!is_connected)
   {
     write_order(HELLO);
     wait_for_bytes(1, 100);
     COM_task();
   }
-#endif
 
 }
 
@@ -119,7 +125,11 @@ void write_checksum(uint8_t checksum)
   write_i8(checksum);
 }
 
-
+void write_order(enum Order order)
+{
+  uint8_t* Order = (uint8_t*) &order;
+  Serial.write(Order, sizeof(uint8_t));
+}
 
 void COM_task(void)
 {
@@ -127,18 +137,29 @@ void COM_task(void)
   if (Serial.available() > 0) {
 
     uint8_t checksum = 0 ;
-    uint8_t start = read_i8();
-    if (start - START_BYTE == 0) {
-      checksum = start;
-      Order order = read_order();
+    Order order_received = read_order();
 
-      if (order == HELLO) {
-        //Ta stilling til oppkobling
-        checksum = (checksum + order);
-      } else {
+    if (order_received == HELLO) {
+      // If the cards haven't say hello, check the connection
+      if (!is_connected)
+      {
+        is_connected = true;
+        write_order(HELLO);
+      }
+      else
+      {
+        // If we are already connected do not send "hello" to avoid infinite loop
+        write_order(ALREADY_CONNECTED);
+      }
+    }
+    else if (order_received == ALREADY_CONNECTED){
+      is_connected = true;
+    } else {
+      if (order_received == START_BYTE) {
+        checksum = START_BYTE;
+        Order order = read_order();
+        checksum = checksum + order;
         switch (order) {
-            checksum = checksum + order;
-
           case REQUEST_SENSOR:
             {
               write_startbyte();
