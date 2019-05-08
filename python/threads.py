@@ -105,15 +105,21 @@ class ListenerThread(threading.Thread):
                 time.sleep(rate)
                 continue
             start = start_byte[0]
+
             with self.serial_lock:
                 try:
                     order = Order(start)
                 except ValueError:
                     continue
-
                 if order == Order.START_BYTE:
                     self.start_received = True
                     self.checksum = Order.START_BYTE.value
+
+                if order == Order.ERROR:
+                    error = read_i16(self.serial_file)
+                    self.messages.append(self, order.value)
+                    self.messages.append(self, error)
+                    decode_order(self.messages)
 
                 if self.start_received:
                     try:
@@ -153,11 +159,7 @@ class ListenerThread(threading.Thread):
 
                         else:
                             print("CHECKSUM ERROR")
-                    if order == Order.ERROR:
-                        error = read_i16(self.serial_file)
-                        self.messages.append(self, order.value)
-                        self.messages.append(self, error)
-                        decode_order(self.messages)
+
                     self.checksum = 0
                     self.messages = []
             time.sleep(rate)
