@@ -88,25 +88,51 @@ class ListenerThread(threading.Thread):
         self.exit_event = exit_event
         self.n_received_tokens = n_received_tokens
         self.serial_lock = serial_lock
+        self.start_received = False
+        self.messages = []
+        self.checksum = 0
+        self.byte_array = []
 
     def run(self):
         while not self.exit_event.is_set():
             try:
-                bytes_array = bytearray(self.serial_file.read(1))
+                start_byte = bytearray(self.serial_file.read(1))
             except serial.SerialException:
                 time.sleep(rate)
                 continue
-            if not bytes_array:
+            if not start_byte:
                 time.sleep(rate)
                 continue
-            byte = bytes_array[0]
+            start_byte = start_byte[0]
             with self.serial_lock:
                 try:
-                    order = Order(byte)
+                    order = Order(start_byte)
                 except ValueError:
                     continue
-                if order == Order.RECEIVED:
+
+                if order == Order.START_BYTE:
+                    self.start_received = True
+
+                if self.start_received:
+                    try:
+                        byte_array = bytearray(self.serial_file.read_until(Order.CHECKSUM.value, size=None))
+                    except serial.SerialException:
+                        time.sleep(rate)
+                        continue
+                    if not byte_array:
+                        time.sleep(rate)
+                        continue
+
+                    for i in byte_array:
+                        byte = i
+                        self.checksum = self.checksum + byte
+                        self.messages.append(self, byte)
+                    received_checksum = bytearray(self.serial_file.read(1))
+                    received_checksum = received_checksum[0]
+                    if self.checksum-received_checksum == 0:
+                        decode_order(self.messages)
                     self.n_received_tokens.release()
-                decode_order(self.serial_file, byte)
+                    self.checksum = 0
+                    self.messages = []
             time.sleep(rate)
         print("Listener Thread Exited")
