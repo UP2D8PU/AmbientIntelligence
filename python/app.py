@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect
 import time
 
-from database import *
-from waterprogram import *
+from python.database import *
+from python.waterprogram import *
 
 
 app = Flask(__name__)

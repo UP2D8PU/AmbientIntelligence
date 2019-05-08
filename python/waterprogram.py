@@ -4,9 +4,9 @@ import threading
 import time
 import schedule
 
-from threads import * #CommandThread, ListenerThread
-from utilities import *#CustomQueue, open_serial_port
-from database import *#plants, garden
+from python.threads import * #CommandThread, ListenerThread
+from python.utilities import *#CustomQueue, open_serial_port
+from python.database import *#plants, garden
 
 
 class Order(Enum):
