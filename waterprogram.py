@@ -87,6 +87,7 @@ def decode_order(f, byte, debug=False):
                 WaterProgram.humiditysensor_value[5] = sensor_data
             elif sensor == 9:
                 WaterProgram.humiditysensor_value[6] = sensor_data
+                sensor_values["updated"]==1
             else:
                 msg=""
                 print("Unknown Sensor",sensor)
@@ -113,10 +114,12 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_2=4
         self.HUMIDITY_SENSOR_3=5
 
-        self.temperatur_value = 0
-        self.airhumidity_value=0
-        self.lightsensor_value=0
-        self.humiditysensor_value = [0,0,0,0,0,0,0]
+        #Sensorvalues now in dictionary
+        #TODO: Oppdatere resten av denne koden til aa fungere med dictionary
+        #self.temperatur_value = 0
+        #self.airhumidity_value=0
+        #self.lightsensor_value=0
+        #self.humiditysensor_value = [0,0,0,0,0,0,0]
 
 
 
@@ -194,7 +197,7 @@ class WaterProgram(object):
     def run(self):
         web = False
         while True:
-            schedule.every(1).minutes.do(self.retrieve_all_sensordata())
+            schedule.every(10).minutes.do(self.retrieve_all_sensordata())
             schedule.every().day.at("12:00").do(self.daily_water)
 
             self.evaluate_sensor_values()
@@ -209,14 +212,6 @@ class WaterProgram(object):
                 if garden[i]["water"] > 0:
                     self.water_plant(garden[i]["angle"],garden[i]["water"])
                     garden[i]["water"]=0
-
-
-
-
-
-
-
-
 
 
 
@@ -240,8 +235,10 @@ class WaterProgram(object):
 
 
 
+#def main():
+#    wp = WaterProgram()
+#    wp.run()
 
+#if __name__ =="__main__":
+#    main()
 
-if __name__ =="__main__":
-    main = WaterProgram()
-    main.run()
