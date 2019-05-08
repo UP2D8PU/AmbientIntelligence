@@ -59,3 +59,17 @@ garden = {
     },
 
 };
+
+sensor_values = {
+        "updated":0,
+        "temperatur_value": 0,
+        "airhumidity_value": 0,
+        "lightsensor_value":0,
+        "humiditysensor_1_value": 0,
+        "humiditysensor_2_value": 0,
+        "humiditysensor_3_value": 0,
+        "humiditysensor_4_value": 0,
+        "humiditysensor_5_value": 0,
+        "humiditysensor_6_value": 0,
+
+};
