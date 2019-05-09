@@ -40,7 +40,8 @@ bool is_connected;
 void write_order(enum Order order);
 void COM_task(void);
 void wait_for_bytes(int num_bytes, uint8_t timeout);
-
+void write_startbyte(void);
+void write_checksum(int16_t checksum);
 
 
 #define DHTTYPE DHT22
@@ -54,14 +55,17 @@ void /**/COM_init(void)
   pinMode(LIGHT_SENSOR, INPUT);
   pinMode(HUMIDITY_SENSOR_1, INPUT);
 
-  bool is_connected = false;
-  while (!is_connected)
-  {
+  is_connected = false;
+  while (!is_connected){
     write_order(HELLO);
     wait_for_bytes(1, 100);
     COM_task();
   }
-
+  write_startbyte();
+  write_order(RECEIVED);
+  int16_t checksum_to_send = (START_BYTE + RECEIVED);
+  write_checksum(checksum_to_send);
+  
 }
 
 
@@ -133,7 +137,7 @@ void write_startbyte()
   write_order(START_BYTE);
 }
 
-void write_checksum(uint16_t checksum)
+void write_checksum(int16_t checksum)
 {
   write_i16(checksum);
 }
@@ -147,7 +151,7 @@ void write_order(enum Order order)
 void COM_task(void)
 {
   if (Serial.available() > 0) {
-    uint16_t checksum = 0 ;
+    int16_t checksum = 0 ;
     Order order_received = read_order();
 
     if (order_received == HELLO) {

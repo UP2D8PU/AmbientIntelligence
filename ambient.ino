@@ -1,15 +1,14 @@
 
 #include "main_tasks.h"
-#include "devices.h"
+#include "comm.h"
 
-
-// TO DO: Implement communication code med startsum og checksum
 void setup() {
  
   TIME_init();
   //SYS_init();
-  COM_init();
   WATER_init();
+  COM_init();
+  
 }
   
 void loop() {

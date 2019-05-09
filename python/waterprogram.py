@@ -63,9 +63,7 @@ def decode_order(messages):
     debug = False
     try:
         order = (messages[0])
-        print(type(order))
-        print(type(Order.ERROR.value))
-        print(type(order - Order.ERROR.value))
+        print("decode order")
         if order == Order.START_BYTE.value:
             msg = "START MSG"
         elif order == Order.HELLO.value:
@@ -127,13 +125,13 @@ class WaterProgram(object):
     def __init__(self):
         self.TEMPERATURE_SENSOR = 20
         self.AIRHUMIDITY_SENSOR = 21
-        self.LIGHT_SENSOR = 2
-        self.HUMIDITY_SENSOR_1 = 3
-        self.HUMIDITY_SENSOR_2 = 4
-        self.HUMIDITY_SENSOR_3 = 5
-        self.HUMIDITY_SENSOR_4 = 6
-        self.HUMIDITY_SENSOR_5 = 7
-        self.HUMIDITY_SENSOR_6 = 8
+        self.LIGHT_SENSOR = 0
+        self.HUMIDITY_SENSOR_1 = 1
+        self.HUMIDITY_SENSOR_2 = 2
+        self.HUMIDITY_SENSOR_3 = 3
+        self.HUMIDITY_SENSOR_4 = 4
+        self.HUMIDITY_SENSOR_5 = 5
+        self.HUMIDITY_SENSOR_6 = 6
         self.test = True
 
         self.air_humidity_threshold  = 85
@@ -161,7 +159,7 @@ class WaterProgram(object):
         print("Connected to Arduino")
 
         self.command_queue = CustomQueue(20)
-        self.n_messages_allowed = 5
+        self.n_messages_allowed = 20
         self.n_received_tokens = threading.Semaphore(self.n_messages_allowed)
         self.serial_lock = threading.Lock()
         self.exit_event = threading.Event()
@@ -178,7 +176,6 @@ class WaterProgram(object):
         self.command_queue.put((Order.START_BYTE, -1, -1))
         self.command_queue.put((Order.ACTION_WATER_PLANT, angle, quantity))
         checksum = generate_checksum([Order.ACTION_WATER_PLANT.value, angle, quantity])
-        print(checksum)
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
     def retrieve_all_sensordata(self):
@@ -236,8 +233,8 @@ class WaterProgram(object):
     def run(self):
         web = False
         while True:
-            schedule.every(10).minutes.do(self.retrieve_all_sensordata)
-            schedule.every().day.at("12:00").do(self.daily_water)
+            #schedule.every(10).minutes.do(self.retrieve_all_sensordata)
+            #schedule.every().day.at("12:00").do(self.daily_water)
 
             #self.evaluate_sensor_values()
 
@@ -245,16 +242,12 @@ class WaterProgram(object):
             # TODO: sende data til nett
 
             if self.test:
-                self.water_plant(0,10)
+                time.sleep(3)
+                self.water_plant(60,127)
                 self.test=False
+                time.sleep(5)
+                self.water_plant(60,127)
 
-            #for i in range(0, 6):
-            #    if garden[i]["water"] > 0:
-            #        self.water_plant(garden[i]["angle"], garden[i]["water"])
-            #        garden[i]["water"] = 0
-
-            if (web == True):
-                x = 1
 
         # schedule.every(10).minutes.do(job)
         # schedule.every().hour.do(job)
