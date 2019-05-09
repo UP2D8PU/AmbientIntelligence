@@ -22,14 +22,11 @@
  *
  *  ---
  *
- *   2013-11-07 Marcus Nowotny <interactive-matter.eu>
- *     - pushing to a full array does not crash but returns false
- * 
- *   2013-11-05 Marcus Nowotny <interactive-matter.eu>
- *     - rewritten to use a default size
- *     - texts are now in flash
- *
  *  Version 1.0
+ *
+ *    2014-02-03  Brian Fletcher  <brian.jf.fletcher@gmail.com>
+ *
+ *      - added enqueue(), dequeue() and front().
  *
  *    2010-09-29  Efstathios Chatzikyriakidis  <contact@efxa.org>
  *
@@ -64,16 +61,25 @@ template<typename T>
 class QueueArray {
   public:
     // init the queue (constructor).
-    QueueArray (const uint16_t initialSize);
+    QueueArray ();
 
     // clear the queue (destructor).
     ~QueueArray ();
 
+    // add an item to the queue.
+    void enqueue (const T i);
+    
+    // remove an item from the queue.
+    T dequeue ();
+
     // push an item to the queue.
-    bool push (const T i);
+    void push (const T i);
 
     // pop an item from the queue.
     T pop ();
+
+    // get the front of the queue.
+    T front () const;
 
     // get an item from the queue.
     T peek () const;
@@ -82,52 +88,57 @@ class QueueArray {
     bool isEmpty () const;
 
     // get the number of items in the queue.
-    uint16_t count () const;
+    int count () const;
 
     // check if the queue is full.
     bool isFull () const;
 
     // set the printer of the queue.
-    void setStream (Stream & s);
+    void setPrinter (Print & p);
 
   private:
-  
+    // resize the size of the queue.
+    void resize (const int s);
+
     // exit report method in case of error.
-    void exit(const __FlashStringHelper*) const;
+    void exit (const char * m) const;
 
     // led blinking method in case of error.
     void blink () const;
 
+    // the initial size of the queue.
+    static const int initialSize = 2;
+
     // the pin number of the on-board led.
     static const int ledPin = 13;
 
-    Stream * stream; // the printer of the queue.
+    Print * printer; // the printer of the queue.
     T * contents;    // the array of the queue.
 
-    uint16_t size;        // the size of the queue.
-    uint16_t items;       // the number of items of the queue.
+    int size;        // the size of the queue.
+    int items;       // the number of items of the queue.
 
-    uint16_t head;        // the head of the queue.
-    uint16_t tail;        // the tail of the queue.
+    int head;        // the head of the queue.
+    int tail;        // the tail of the queue.
 };
 
 // init the queue (constructor).
 template<typename T>
-QueueArray<T>::QueueArray (const uint16_t initialSize) {
+QueueArray<T>::QueueArray () {
   size = 0;       // set the size of queue to zero.
   items = 0;      // set the number of items of queue to zero.
 
   head = 0;       // set the head of the queue to zero.
   tail = 0;       // set the tail of the queue to zero.
 
-  stream = NULL; // set the printer of queue to point nowhere.
+  printer = NULL; // set the printer of queue to point nowhere.
 
   // allocate enough memory for the array.
   contents = (T *) malloc (sizeof (T) * initialSize);
 
   // if there is a memory allocation error.
   if (contents == NULL)
-    exit (F("QUEUE: insufficient memory to initialize queue."));
+    exit ("QUEUE: insufficient memory to initialize queue.");
 
   // set the initial size of the queue.
   size = initialSize;
@@ -139,7 +150,7 @@ QueueArray<T>::~QueueArray () {
   free (contents); // deallocate the array of the queue.
 
   contents = NULL; // set queue's array pointer to nowhere.
-  stream = NULL;  // set the printer of queue to point nowhere.
+  printer = NULL;  // set the printer of queue to point nowhere.
 
   size = 0;        // set the size of queue to zero.
   items = 0;       // set the number of items of queue to zero.
@@ -148,13 +159,44 @@ QueueArray<T>::~QueueArray () {
   tail = 0;        // set the tail of the queue to zero.
 }
 
-// push an item to the queue.
+// resize the size of the queue.
 template<typename T>
-bool QueueArray<T>::push (const T i) {
+void QueueArray<T>::resize (const int s) {
+  // defensive issue.
+  if (s <= 0)
+    exit ("QUEUE: error due to undesirable size for queue size.");
+
+  // allocate enough memory for the temporary array.
+  T * temp = (T *) malloc (sizeof (T) * s);
+
+  // if there is a memory allocation error.
+  if (temp == NULL)
+    exit ("QUEUE: insufficient memory to initialize temporary queue.");
+  
+  // copy the items from the old queue to the new one.
+  for (int i = 0; i < items; i++)
+    temp[i] = contents[(head + i) % size];
+
+  // deallocate the old array of the queue.
+  free (contents);
+
+  // copy the pointer of the new queue.
+  contents = temp;
+
+  // set the head and tail of the new queue.
+  head = 0; tail = items;
+
+  // set the new size of the queue.
+  size = s;
+}
+
+// add an item to the queue.
+template<typename T>
+void QueueArray<T>::enqueue (const T i) {
   // check if the queue is full.
   if (isFull ())
-    // we cannot add anythif - just return false
-    return false;
+    // double size of array.
+    resize (size * 2);
 
   // store the item to the array.
   contents[tail++] = i;
@@ -164,17 +206,20 @@ bool QueueArray<T>::push (const T i) {
 
   // increase the items.
   items++;
-
-  //ok everything was fin
-  return true;
 }
 
-// pop an item from the queue.
+// push an item to the queue.
 template<typename T>
-T QueueArray<T>::pop () {
+void QueueArray<T>::push (const T i) {
+  enqueue(i);
+}
+
+// remove an item from the queue.
+template<typename T>
+T QueueArray<T>::dequeue () {
   // check if the queue is empty.
   if (isEmpty ())
-    exit (F("QUEUE: can't pop item from queue: queue is empty."));
+    exit ("QUEUE: can't pop item from queue: queue is empty.");
 
   // fetch the item from the array.
   T item = contents[head++];
@@ -185,19 +230,35 @@ T QueueArray<T>::pop () {
   // wrap-around index.
   if (head == size) head = 0;
 
+  // shrink size of array if necessary.
+  if (!isEmpty () && (items <= size / 4))
+    resize (size / 2);
+
   // return the item from the array.
   return item;
+}
+
+// pop an item from the queue.
+template<typename T>
+T QueueArray<T>::pop () {
+  return dequeue();
+}
+
+// get the front of the queue.
+template<typename T>
+T QueueArray<T>::front () const {
+  // check if the queue is empty.
+  if (isEmpty ())
+    exit ("QUEUE: can't get the front item of queue: queue is empty.");
+    
+  // get the item from the array.
+  return contents[head];
 }
 
 // get an item from the queue.
 template<typename T>
 T QueueArray<T>::peek () const {
-  // check if the queue is empty.
-  if (isEmpty ())
-    exit (F("QUEUE: can't peek item from queue: queue is empty."));
-
-  // get the item from the array.
-  return contents[head];
+  return front();
 }
 
 // check if the queue is empty.
@@ -214,22 +275,22 @@ bool QueueArray<T>::isFull () const {
 
 // get the number of items in the queue.
 template<typename T>
-uint16_t QueueArray<T>::count () const {
+int QueueArray<T>::count () const {
   return items;
 }
 
 // set the printer of the queue.
 template<typename T>
-void QueueArray<T>::setStream (Stream & s) {
-  stream = &s;
+void QueueArray<T>::setPrinter (Print & p) {
+  printer = &p;
 }
 
 // exit report method in case of error.
 template<typename T>
-void QueueArray<T>::exit (const __FlashStringHelper * m) const {
+void QueueArray<T>::exit (const char * m) const {
   // print the message if there is a printer.
-  if (stream)
-    stream->println (m);
+  if (printer)
+    printer->println (m);
 
   // loop blinking until hardware reset.
   blink ();

@@ -1,11 +1,8 @@
-
-
-
 #include "order.h"
 #include <stdio.h>
 #include <stdint.h>  /* uint8_t, ... */
 #include <Arduino.h>
-#include "queue.h"
+#include "QueueArray.h"
 #include "devices.h"
 #include <DHT.h>
 
@@ -32,8 +29,8 @@
 
 uint8_t COM_timer;  /* 10 ms */
 uint8_t BYTE_timer;  /* 10 ms */
-QueueArray <int8_t> angle_queue = 0; //Unit: degrees
-QueueArray <int8_t> water_quantity_queue = 0; //Unit:liters
+QueueArray <uint8_t> angle_queue; //Unit: degrees
+QueueArray <uint8_t> water_quantity_queue; //Unit:milliliters
 uint8_t checksum;
 bool message_received;
 bool is_connected;
@@ -233,8 +230,8 @@ void COM_task(void)
           write_checksum(checksum_to_send);
 
           if (received_checksum - checksum == 0) {
-            angle_queue.push(plant);
-            water_quantity_queue.push(amount);
+            angle_queue.enqueue (plant);
+            water_quantity_queue.enqueue (amount);
 
           }
         } else {

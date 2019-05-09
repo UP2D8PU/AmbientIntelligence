@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>  /* uint8_t, ... */
 #include <Arduino.h>
-#include "queue.h"
+#include "QueueArray.h"
 #include "Servo.h"
 #include "devices.h"
 #include "water.h"
@@ -20,7 +20,8 @@
 
 uint8_t WATER_timer;  /* 10 ms */
 Servo servoMain;
-
+extern QueueArray <uint8_t> angle_queue;
+extern QueueArray <uint8_t> water_quantity_queue;
 /* Inicialização da tarefa SYS.
   +------------------------------------------------------------------------*/
 void /**/WATER_init(void)
@@ -45,8 +46,8 @@ void /**/WATER_task(void) {
   uint8_t angle;
   uint8_t quantity;
   if (angle_queue.count() > 0 && water_quantity_queue.count() > 0) {
-    angle = angle_queue.pop();
-    quantity = water_quantity_queue.pop();
+    angle = angle_queue.dequeue ();
+    quantity = water_quantity_queue.dequeue ();
     update_motor(angle);
     delay(500);
     uint8_t duration = quantity / flow_rate;
