@@ -34,9 +34,9 @@
                 <div class="col" style = "border-style: solid; border-right-style: none; background-color: #6497b1;">
                     <h2>Sensordata</h2>
                     <p>
-                        Air humidity: {{ dict["airhumidity_value"] }} % <br />
-                        Light intensity: {{dict["lightsensor_value"] }} % <br />
-                        Temperatur: {{ dict["temperatur_value"] }} Kelvin <br />
+                        Temperatur: {{ dict["temperature value"] }} Kelvin <br />
+                        Air humidity: {{ dict["airhumidity value"] }} % <br />
+                        Light intensity: {{dict["lightsensor value"] }} % <br />
                     </p>
                 </div>
                 <div class="col col-lg-2" style ="border-style: solid; border-left-style: none;background-color: #6497b1;">
@@ -46,48 +46,73 @@
                 </div>
                 <div class="w-100"></div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 1 </h3>
+                    <h3> Plant 1: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_1_value"] }} %
+                        Soil humidity : {{ garden[0]["humiditysensor value"] }} %
                     </p>
-                    <a href=/water1><button type="button" name="water" id="water1" class="btn btn-success" value="1" onclick="myScript">Water plant</button></a>
+
+                    <form action="{{ url_for('water1') }}" method="post">
+                        <input type="text" name="projectFilepath">
+                        <input type="submit">
+                    </form>
+
+                    {% if garden[0]["type"] != 0 %}
+                    <a href=/water1><button type="button" name="water" id="water1" class="btn btn-success" value="1">Water plant</button></a>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant1" class="btn btn-success" value="1">Add plant</button></a>
+                    {% endif %}
                 </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 2 </h3>
+                    <h3> Plant 2: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_2_value"] }} %
+                        Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                     </p>
+                    {% if garden[1]["type"] != 0 %}
                     <a href=/water2><button type="button" name="water" id="water2" class="btn btn-success" value="2">Water plant</button></a>
-                </div>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant2" class="btn btn-success" value="2">Add plant</button></a>
+                    {% endif %}                </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 3 </h3>
+                    <h3> Plant 3: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_3_value"] }} %
+                        Soil humidity : {{ garden[2]["humiditysensor value"] }} %
                     </p>
+                    {% if garden[2]["type"] != 0 %}
                     <a href=/water3><button type="button" name="water" id="water3" class="btn btn-success" value="3">Water plant</button></a>
-                </div>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant3" class="btn btn-success" value="3">Add plant</button></a>
+                    {% endif %}                </div>
                 <div class="w-100"></div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 4 </h3>
+                    <h3> Plant 4: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_4_value"] }} %
+                        Soil humidity : {{ garden[3]["humiditysensor value"] }} %
                     </p>
+                    {% if garden[3]["type"] != 0 %}
                     <a href=/water4><button type="button" name="water" id="water4" class="btn btn-success" value="4">Water plant</button></a>
-                </div>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant4" class="btn btn-success" value="4">Add plant</button></a>
+                    {% endif %}                </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 5 </h3>
+                    <h3> Plant 5: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_5_value"] }} %
+                        Soil humidity : {{ garden[4]["humiditysensor value"] }} %
                     </p>
+                    {% if garden[4]["type"] != 0 %}
                     <a href=/water5><button type="button" name="water" id="water5" class="btn btn-success" value="5">Water plant</button></a>
-                </div>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant5" class="btn btn-success" value="5">Add plant</button></a>
+                    {% endif %}                </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 6 </h3>
+                    <h3> Plant 6: {{plants_dict[0]["name"]}} </h3>
                     <p>
-                        Soil humidity : {{ dict["humiditysensor_6_value"] }} %
+                        Soil humidity : {{ garden[5]["humiditysensor value"] }} %
                     </p>
+                    {% if garden[5]["type"] != 0 %}
                     <a href=/water6><button type="button" name="water" id="water6" class="btn btn-success" value="6">Water plant</button></a>
-                </div>
+                    {% else %}
+                    <a href=/add_plant><button type="button" name="add" id="add_plant6" class="btn btn-success" value="6">Add plant</button></a>
+                    {% endif %}                </div>
             </div>
 
         </div>

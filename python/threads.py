@@ -4,9 +4,9 @@ import threading
 import time
 
 import serial
-
-from python.waterprogram import *# write_order, Order, write_i8, decode_order
-from python.utilities import *# queue
+import python.waterprogram as wp
+from .waterprogram import *
+from .utilities import *
 
 rate = 1 / 2000  # 2000 Hz (limit the rate of communication with the arduino)
 
@@ -58,15 +58,15 @@ class CommandThread(threading.Thread):
                 continue
 
             with self.serial_lock:
-                if order.value != Order.CHECKSUM.value:
-                    write_order(self.serial_file, order)
+                if order.value != wp.Order.CHECKSUM.value:
+                    wp.write_order(self.serial_file, order)
                     print("order written " + str(order.value))
                     if param1 != -1:
-                        write_i8(self.serial_file, param1)
+                        wp.write_i8(self.serial_file, param1)
                     if param2 != -1:
-                        write_i8(self.serial_file, param2)
+                        wp.write_i8(self.serial_file, param2)
                 else:
-                    write_i16(self.serial_file, param1)
+                    wp.write_i16(self.serial_file, param1)
 
                 self.messages=[]
             time.sleep(rate)
@@ -106,24 +106,25 @@ class ListenerThread(threading.Thread):
                 time.sleep(rate)
                 continue
             start = start_byte[0]
+
             with self.serial_lock:
                 try:
-                    order = Order(start)
+                    order = wp.Order(start)
                 except ValueError:
                     continue
-                if order == Order.START_BYTE:
+                if order == wp.Order.START_BYTE:
                     self.start_received = True
-                    self.checksum = Order.START_BYTE.value
+                    self.checksum = wp.Order.START_BYTE.value
 
-                if order == Order.ERROR:
-                    error = read_i16(self.serial_file)
+                if order == wp.Order.ERROR:
+                    error = wp.read_i16(self.serial_file)
                     self.messages.append(order)
                     self.messages.append(error)
-                    decode_order(self.messages)
+                    wp.decode_order(self.messages)
 
                 if self.start_received:
                     try:
-                        order = read_i8(self.serial_file)
+                        order = wp.read_i8(self.serial_file)
                     except serial.SerialException:
                         time.sleep(rate)
                         continue
@@ -131,31 +132,31 @@ class ListenerThread(threading.Thread):
                         time.sleep(rate)
                         continue
                     try:
-                        order = Order(order)
+                        order = wp.Order(order)
                     except ValueError:
                         continue
-                    if order == Order.RECEIVED:
+                    if order == wp.Order.RECEIVED:
                         print("Recieved message")
                         self.checksum = self.checksum + order.value
-                        received_checksum = read_i16(self.serial_file)
+                        received_checksum = wp.read_i16(self.serial_file)
                         if self.checksum - received_checksum == 0:
                             self.messages.append(order)
                             self.n_received_tokens.release()
                         else:
                             print("CHECKSUM ERROR")
 
-                    if order == Order.SENSOR_MSG:
-                        sensor = read_i8(self.serial_file)
-                        value = read_i16(self.serial_file)
+                    if order == wp.Order.SENSOR_MSG:
+                        sensor = wp.read_i8(self.serial_file)
+                        value = wp.read_i16(self.serial_file)
 
                         self.checksum = self.checksum + order.value +sensor + value
-                        received_checksum = read_i16(self.serial_file)
+                        received_checksum = wp.read_i16(self.serial_file)
 
                         if self.checksum-received_checksum == 0:
                             self.messages.append(order)
                             self.messages.append(sensor)
                             self.messages.append(value)
-                            decode_order(self.messages)
+                            wp.decode_order(self.messages)
 
                         else:
                             print("CHECKSUM ERROR")

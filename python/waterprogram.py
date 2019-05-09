@@ -79,17 +79,18 @@ def decode_order(messages):
         elif order == Order.START_BYTE:
             msg = "START"
         elif order == Order.SENSOR_MSG:
+            print("a sensormsg is retrieved")
             sensor = messages[1]
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
             if sensor == 20:
-                sensor_values["temperatur_value"] = sensor_data / 10;
+                sensor_values["temperature value"] = sensor_data / 10;
             elif sensor == 21:
-                sensor_values["airhumidity_value"] = sensor_data / 10;
+                sensor_values["airhumidity value"] = sensor_data / 10;
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
-                print(sensor_values["temperatur_value"])
-                print(sensor_values["airhumidity_value"])
+                print(sensor_values["temperature value"])
+                print(sensor_values["airhumidity value"])
                 print(sensor_values["lightsensor value"])
             elif sensor == 1:
                 garden["0"]["humiditysensor value"] = sensor_data
@@ -133,7 +134,7 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_4 = 4
         self.HUMIDITY_SENSOR_5 = 5
         self.HUMIDITY_SENSOR_6 = 6
-        self.test = False
+        self.test = True
 
         self.air_humidity_threshold  = 85
         self.temperature_threshold = 20
@@ -230,50 +231,35 @@ class WaterProgram(object):
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], quantity)
+                print("Evaluated and watered")
 
 
     def run(self):
         while True:
-            schedule.every(1).minutes.do(self.retrieve_all_sensordata)
-            #schedule.every().day.at("12:00").do(self.daily_water)
-            schedule.run_pending()
 
-            #self.evaluate_sensor_values()
+            #schedule.every().day.at("12:00").do(self.daily_water)
+
+
 
             # TODO: hente ting fra nett: legge inn nye planter i hagen vanningsordre
             # TODO: sende data til nett
 
             if self.test:
-                time.sleep(3)
-                self.water_plant(60,127)
+                #time.sleep(3)
+                #self.water_plant(60,127)
+                #self.test=False
+                #time.sleep(5)
+                #self.water_plant(60,127)
+                #self.retrieve_all_sensordata()
+                print("wp.run loop")
                 self.test=False
-                time.sleep(5)
-                self.water_plant(60,127)
-                self.retrieve_all_sensordata()
 
 
-        # schedule.every(10).minutes.do(job)
-        # schedule.every().hour.do(job)
-        # schedule.every().day.at("10:30").do(job)
-        # schedule.every(5).to(10).minutes.do(job)
-        # schedule.every().monday.do(job)
-        # schedule.every().wednesday.at("13:15").do(job)
-        # schedule.every().minute.at(":17").do(job)
 
-        # End the threads
-        self.exit_event.set()
-        self.n_received_tokens.release()
-
-        print("Exiting...")
-
-        for t in self.threads:
-            t.join()
+#def main():
+#    wp = WaterProgram()
+#    wp.run()
 
 
-def main():
-    wp = WaterProgram()
-    wp.run()
-
-
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
