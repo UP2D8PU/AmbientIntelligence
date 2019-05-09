@@ -188,22 +188,22 @@ void COM_task(void)
             int msg = 10000;
             if (sensor == TEMPERATURE_SENSOR) {
               float t = dht.readTemperature();
-              int msg = (int)(t * 10);
+              msg = (int)(t * 10);
               if (isnan(msg)) {
                 //Print error
                 return;
               }
             } else if (sensor == AIRHUMIDITY_SENSOR) {
               float h = dht.readHumidity();
-              int msg = (int)(h * 10);
+              msg = (int)(h * 10);
               if (isnan(msg)) {
                 //Print error
                 return;
               }
             } else if (sensor == LIGHT_SENSOR) {
-              int msg = analogRead(LIGHT_SENSOR);
+              msg = analogRead(LIGHT_SENSOR);
             } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
-              int msg = digitalRead(sensor);
+              msg = digitalRead(sensor);
             }
             if (msg != 10000) {
               write_startbyte();
@@ -240,7 +240,7 @@ void COM_task(void)
           }
         } else {
           write_order(ERROR);
-          write_i16(404);
+          write_i16(402);
           return;
         }
       }

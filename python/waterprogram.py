@@ -64,21 +64,21 @@ def decode_order(messages):
     try:
         order = (messages[0])
         print("decode order")
-        if order == Order.START_BYTE.value:
+        if order == Order.START_BYTE:
             msg = "START MSG"
-        elif order == Order.HELLO.value:
+        elif order == Order.HELLO:
             msg = "HELLO"
-        elif order == Order.ALREADY_CONNECTED.value:
+        elif order == Order.ALREADY_CONNECTED:
             msg = "ALREADY_CONNECTED"
-        elif order == Order.ERROR.value:
+        elif order == Order.ERROR:
             error_code = (messages[1])
             msg = "Error {}".format(error_code)
             print(msg)
-        elif order == Order.RECEIVED.value:
+        elif order == Order.RECEIVED:
             msg = "ARDUINO RECEIVED"
-        elif order == Order.START_BYTE.value:
+        elif order == Order.START_BYTE:
             msg = "START"
-        elif order == Order.SENSOR_MSG.value:
+        elif order == Order.SENSOR_MSG:
             sensor = messages[1]
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
@@ -86,22 +86,23 @@ def decode_order(messages):
                 sensor_values["temperatur_value"] = sensor_data / 10;
             elif sensor == 21:
                 sensor_values["airhumidity_value"] = sensor_data / 10;
-            elif sensor == 2:
+            elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
-            elif sensor == 3:
+                print(sensor_values["temperatur_value"])
+                print(sensor_values["airhumidity_value"])
+                print(sensor_values["lightsensor value"])
+            elif sensor == 1:
                 garden["0"]["humiditysensor value"] = sensor_data
-            elif sensor == 4:
+            elif sensor == 2:
                 garden["1"]["humiditysensor value"] = sensor_data
-            elif sensor == 5:
+            elif sensor == 3:
                 garden["2"]["humiditysensor value"] = sensor_data
-            elif sensor == 6:
+            elif sensor == 4:
                 garden["3"]["humiditysensor value"] = sensor_data
-            elif sensor == 7:
+            elif sensor == 5:
                 garden["4"]["humiditysensor value"] = sensor_data
-            elif sensor == 8:
+            elif sensor == 6:
                 garden["5"]["humiditysensor value"] = sensor_data
-
-                sensor_values["updated"] == 1
 
             else:
                 msg = ""
@@ -109,7 +110,7 @@ def decode_order(messages):
 
         else:
             msg = ""
-            print("Unknown Order", messages[0])
+            print("Unknown Order", order)
         if debug:
             print(msg)
     except Exception as e:
@@ -132,7 +133,7 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_4 = 4
         self.HUMIDITY_SENSOR_5 = 5
         self.HUMIDITY_SENSOR_6 = 6
-        self.test = True
+        self.test = False
 
         self.air_humidity_threshold  = 85
         self.temperature_threshold = 20
@@ -179,6 +180,7 @@ class WaterProgram(object):
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
     def retrieve_all_sensordata(self):
+        print("sensordata asked for")
         self.command_queue.put((Order.START_BYTE, -1, -1))
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR, -1))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.TEMPERATURE_SENSOR])
@@ -194,20 +196,20 @@ class WaterProgram(object):
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-        self.command_queue.put((Order.START_BYTE, -1, -1))
-        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
-        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
-        self.command_queue.put((Order.CHECKSUM, checksum, -1))
+        #self.command_queue.put((Order.START_BYTE, -1, -1))
+        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
+        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
+        #self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-        self.command_queue.put((Order.START_BYTE, -1, -1))
-        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2, -1))
-        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_2])
-        self.command_queue.put((Order.CHECKSUM, checksum))
+        #self.command_queue.put((Order.START_BYTE, -1, -1))
+        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2, -1))
+        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_2])
+        #self.command_queue.put((Order.CHECKSUM, checksum))
 
-        self.command_queue.put((Order.START_BYTE, -1, -1))
-        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_3, -1))
-        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_3])
-        self.command_queue.put((Order.CHECKSUM, checksum, -1))
+        #self.command_queue.put((Order.START_BYTE, -1, -1))
+        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_3, -1))
+        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_3])
+        #self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
         # Humidity sensor 4,5,6 should be added in the real system.
 
@@ -231,10 +233,10 @@ class WaterProgram(object):
 
 
     def run(self):
-        web = False
         while True:
-            #schedule.every(10).minutes.do(self.retrieve_all_sensordata)
+            schedule.every(1).minutes.do(self.retrieve_all_sensordata)
             #schedule.every().day.at("12:00").do(self.daily_water)
+            schedule.run_pending()
 
             #self.evaluate_sensor_values()
 
@@ -247,6 +249,7 @@ class WaterProgram(object):
                 self.test=False
                 time.sleep(5)
                 self.water_plant(60,127)
+                self.retrieve_all_sensordata()
 
 
         # schedule.every(10).minutes.do(job)
