@@ -90,12 +90,8 @@ def decode_order(messages):
             msg = "sensormsg {}".format(sensor_data)
             if sensor == 20:
                 sensor_values["temperature value"] = sensor_data / 10;
-                print("temp:")
-                print(sensor_values["temperature value"])
             elif sensor == 21:
                 sensor_values["airhumidity value"] = sensor_data / 10;
-                print("airhum:")
-                print(sensor_values["airhumidity value"])
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
                 print("LIGHT SENSOR:")
@@ -147,7 +143,8 @@ class WaterProgram(object):
         self.test = True
 
         self.air_humidity_threshold  = 85
-        self.temperature_threshold = 20
+        self.temperature_high_threshold = 25
+        self.temperature_low_threshold = 20
         self.light_intensity_threshold = 100 
 
         try:
@@ -191,7 +188,7 @@ class WaterProgram(object):
         checksum = generate_checksum([Order.ACTION_WATER_PLANT.value, angle, quantity])
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-    def retrieve_all_sensordata(self):
+    def retrieve_all_sensor_data(self):
         print("sensordata asked for")
         self.command_queue.put((Order.START_BYTE, -1, -1))
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR, -1))
@@ -232,13 +229,15 @@ class WaterProgram(object):
                 water_quantity = plants[type]["water quantity"]
                 garden[i]["water"] = water_quantity
 
-    def evaluate_sensor_values(self):
+    def evaluate_sensor_data(self):
         for i in range(0,5):
             quantity=0
             if garden[i]["type"]>0 and sensor_values["airhumidity value"] < self.air_humidity_threshold :
                 if garden[i]["humiditysensor value"] < plants[garden[i]["type"]]["humidity threshold min"]:
                     quantity = plants[garden[i]["type"]]["water quantity"]
-                if sensor_values["temperature value"] > self.temperature_threshold and sensor_values["lightsensor value"] > self.light_intensity_threshold:
+                if sensor_values["temperature value"] > self.temperature_high_threshold:
+                    quantity += (plants[garden[i]["type"]]["water quantity"])/2;
+                elif sensor_values["temperature value"] > self.temperature_low_threshold and sensor_values["lightsensor value"] > self.light_intensity_threshold:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
@@ -255,10 +254,10 @@ class WaterProgram(object):
 
 
 
-def main():
-    wp = WaterProgram()
-    wp.run()
+#def main():
+#    wp = WaterProgram()
+#    wp.run()
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()

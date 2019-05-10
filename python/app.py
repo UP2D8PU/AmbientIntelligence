@@ -13,7 +13,8 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['POST','GET'])
 def hello_world():
-    return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants)
+    type= [plants[garden[0]["type"]]["name"],plants[garden[1]["type"]]["name"],plants[garden[2]["type"]]["name"],plants[garden[3]["type"]]["name"],plants[garden[4]["type"]]["name"],plants[garden[5]["type"]]["name"]]
+    return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
 
 @app.route('/water1',methods=['POST'])
 def water1():
@@ -24,8 +25,14 @@ def water1():
 
 @app.route('/water2')
 def water2():
-    print("WATER2")
-    return render_template('index2.html', dict = sensor_values, plants_dict = plants)
+    if request.form['button'] == "water":
+        print("Water plant 2")
+    if request.form['button'] == "add":
+        value = int(request.form['tvalue'])
+        garden[2]["type"] = value
+    type= [plants[garden[0]["type"]]["name"],plants[garden[1]["type"]]["name"],plants[garden[2]["type"]]["name"],plants[garden[3]["type"]]["name"],plants[garden[4]["type"]]["name"],plants[garden[5]["type"]]["name"]]
+    return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants, types=type)
+
 
 @app.route('/water3')
 def water3():
@@ -50,7 +57,7 @@ def water6():
 @app.route('/update')
 def update():
     print("UPDATE")
-    wp.retrieve_all_sensordata()
+    wp.retrieve_all_sensor_data()
     while sensor_values["updated"]==0:
         time.sleep(0.5)
     return render_template('index2.html', dict = sensor_values, plants_dict = plants)
@@ -61,10 +68,10 @@ def update():
 #    thread.start()
 
 def sensordata():
-    wp.retrieve_all_sensordata()
+    wp.retrieve_all_sensor_data()
     print("Retrieve all sensordata!")
     time.sleep(1)
-    wp.evaluate_sensor_values()
+    wp.evaluate_sensor_data()
     print("Evaluate sensor_values")
 
 def dailywater():
