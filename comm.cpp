@@ -186,8 +186,10 @@ void COM_task(void)
               }
             } else if (sensor == LIGHT_SENSOR) {
               msg = analogRead(LIGHT_SENSOR);
+              msg = msg*100/560;
             } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
-              msg = digitalRead(sensor);
+              msg = analogRead(sensor);
+              msg = msg*100/666;
             }
             if (msg != 10000) {
               write_startbyte();

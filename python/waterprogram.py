@@ -58,6 +58,11 @@ def generate_checksum(list):
         checksum = checksum + i
     return checksum
 
+def timeout_milliseconds(timeout):
+    milli_sec = int(round(time.time() * 1000))
+    nothing = 0
+    while (int(round(time.time() * 1000)) - milli_sec < timeout):
+        nothing = 1
 
 def decode_order(messages):
     debug = False
@@ -79,31 +84,36 @@ def decode_order(messages):
         elif order == Order.START_BYTE:
             msg = "START"
         elif order == Order.SENSOR_MSG:
-            print("a sensormsg is retrieved")
+            #print("a sensormsg is retrieved")
             sensor = messages[1]
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
             if sensor == 20:
                 sensor_values["temperature value"] = sensor_data / 10;
+                print("temp:")
+                print(sensor_values["temperature value"])
             elif sensor == 21:
                 sensor_values["airhumidity value"] = sensor_data / 10;
+                print("airhum:")
+                print(sensor_values["airhumidity value"])
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
-                print(sensor_values["temperature value"])
-                print(sensor_values["airhumidity value"])
+                print("LIGHT SENSOR:")
                 print(sensor_values["lightsensor value"])
             elif sensor == 1:
-                garden["0"]["humiditysensor value"] = sensor_data
+                garden[0]["humiditysensor value"] = sensor_data
+                print("HUM1 SENSOR:")
+                print(garden[0]["humiditysensor value"])
             elif sensor == 2:
-                garden["1"]["humiditysensor value"] = sensor_data
+                garden[1]["humiditysensor value"] = sensor_data
             elif sensor == 3:
-                garden["2"]["humiditysensor value"] = sensor_data
+                garden[2]["humiditysensor value"] = sensor_data
             elif sensor == 4:
-                garden["3"]["humiditysensor value"] = sensor_data
+                garden[3]["humiditysensor value"] = sensor_data
             elif sensor == 5:
-                garden["4"]["humiditysensor value"] = sensor_data
+                garden[4]["humiditysensor value"] = sensor_data
             elif sensor == 6:
-                garden["5"]["humiditysensor value"] = sensor_data
+                garden[5]["humiditysensor value"] = sensor_data
 
             else:
                 msg = ""
@@ -151,7 +161,8 @@ class WaterProgram(object):
             write_order(ser, Order.HELLO)
             bytes_array = bytearray(ser.read(1))
             if not bytes_array:
-                time.sleep(2)
+                timeout_milliseconds(2000)
+                #time.sleep(2)
                 continue
             byte = bytes_array[0]
             print(byte)
@@ -197,10 +208,10 @@ class WaterProgram(object):
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-        #self.command_queue.put((Order.START_BYTE, -1, -1))
-        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
-        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
-        #self.command_queue.put((Order.CHECKSUM, checksum, -1))
+        self.command_queue.put((Order.START_BYTE, -1, -1))
+        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
+        self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
         #self.command_queue.put((Order.START_BYTE, -1, -1))
         #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2, -1))
@@ -230,36 +241,24 @@ class WaterProgram(object):
                 if sensor_values["temperature value"] > self.temperature_threshold and sensor_values["lightsensor value"] > self.light_intensity_threshold:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
-                self.water_plant(garden[i]["angle"], quantity)
+                self.water_plant(garden[i]["angle"], round(quantity))
                 print("Evaluated and watered")
 
 
     def run(self):
         while True:
-
-            #schedule.every().day.at("12:00").do(self.daily_water)
-
-
-
-            # TODO: hente ting fra nett: legge inn nye planter i hagen vanningsordre
-            # TODO: sende data til nett
-
             if self.test:
-                #time.sleep(3)
-                #self.water_plant(60,127)
-                #self.test=False
-                #time.sleep(5)
-                #self.water_plant(60,127)
-                #self.retrieve_all_sensordata()
-                print("wp.run loop")
+                self.retrieve_all_sensordata()
                 self.test=False
+                timeout_milliseconds(10000)
+                self.retrieve_all_sensordata()
 
 
 
-#def main():
-#    wp = WaterProgram()
-#    wp.run()
+def main():
+    wp = WaterProgram()
+    wp.run()
 
 
-#if __name__ == "__main__":
-#    main()
+if __name__ == "__main__":
+    main()
