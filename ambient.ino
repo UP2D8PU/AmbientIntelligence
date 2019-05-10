@@ -1,10 +1,9 @@
 
 #include "main_tasks.h"
-#include "comm.h"
 
 void setup() {
  
-  TIME_init();
+  //TIME_init();
   //SYS_init();
   WATER_init();
   COM_init();
@@ -12,7 +11,7 @@ void setup() {
 }
   
 void loop() {
-  TIME_task();
+  //TIME_task();
   //SYS_task();
   COM_task();
   WATER_task();

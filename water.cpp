@@ -1,29 +1,23 @@
+/* Include **/
 
-#include "order.h"
-#include <stdio.h>
-#include <stdint.h>  /* uint8_t, ... */
-#include <Arduino.h>
-#include "QueueArray.h"
-#include "Servo.h"
-#include "devices.h"
 #include "water.h"
-#include <avr/io.h>
-#include "comm.h"
+
+/* Define **/
 
 #define _WATER_TASK_
 
 
 
-/* Variáveis globais ::vars **/
+/* Variables **/
 int flow_rate = 189; //Average flow rate kitchen sink: 189.27 milliliters/seconds
-int MOTOR_INIT= 90; //Initial position of the motor 90 degrees
-
-uint8_t WATER_timer;  /* 10 ms */
+int MOTOR_INIT = 90; //Initial position of the motor 90 degrees
+uint8_t WATER_timer;
 Servo servoMain;
 extern QueueArray <uint8_t> angle_queue;
-extern QueueArray <uint8_t> water_quantity_queue;
-/* Inicialização da tarefa SYS.
-  +------------------------------------------------------------------------*/
+extern QueueArray <uint16_t> water_quantity_queue;
+unsigned long MOTOR_TIMEOUT = 500;
+
+
 void /**/WATER_init(void)
 {
   pinMode(WATERPUMP, OUTPUT);
@@ -37,17 +31,24 @@ void update_motor(uint8_t angle)
 
 void /**/WATER_task(void) {
   uint8_t angle;
-  uint8_t quantity;
+  uint16_t quantity;
   if (angle_queue.count() > 0 && water_quantity_queue.count() > 0) {
-        
     angle = angle_queue.dequeue ();
     quantity = water_quantity_queue.dequeue ();
     update_motor(angle);
-    delay(500);
-    uint8_t duration = quantity / flow_rate;
+    timeout_milliseconds(MOTOR_TIMEOUT);
+    unsigned long duration = quantity *1000 / flow_rate; // in milliseconds
     digitalWrite(WATERPUMP, HIGH);
-    delay(3000);
+    timeout_milliseconds(duration);
     digitalWrite(WATERPUMP, LOW);
     update_motor(MOTOR_INIT);
   }
+}
+
+void timeout_milliseconds(unsigned long timeout)
+{
+  unsigned long startTime = millis();
+  //Wait for incoming bytes or exit if timeout
+  while( (millis() -startTime) < timeout) {
+    }
 }
