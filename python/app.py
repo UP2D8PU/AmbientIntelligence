@@ -36,7 +36,7 @@ def init():
             value = int(request.form['add_plant2'])
             if (value !=0):
                 garden[1]["type"] = value
-        elif request.form['button'] == "delete1":
+        elif request.form['button'] == "delete2":
             garden[1]["type"] = 0
 
 
@@ -47,7 +47,7 @@ def init():
             value = int(request.form['add_plant3'])
             if (value !=0):
                 garden[2]["type"] = value
-        elif request.form['button'] == "delete1":
+        elif request.form['button'] == "delete3":
             garden[2]["type"] = 0
 
 
@@ -58,7 +58,7 @@ def init():
             value = int(request.form['add_plant4'])
             if (value !=0):
                 garden[3]["type"] = value
-        elif request.form['button'] == "delete1":
+        elif request.form['button'] == "delete4":
             garden[3]["type"] = 0
 
 
@@ -69,7 +69,7 @@ def init():
             value = int(request.form['add_plant5'])
             if (value !=0):
                 garden[4]["type"] = value
-        elif request.form['button'] == "delete1":
+        elif request.form['button'] == "delete5":
             garden[4]["type"] = 0
 
 
@@ -80,7 +80,7 @@ def init():
             value = int(request.form['add_plant6'])
             if (value !=0):
                 garden[5]["type"] = value
-        elif request.form['button'] == "delete1":
+        elif request.form['button'] == "delete6":
             garden[5]["type"] = 0
 
 
