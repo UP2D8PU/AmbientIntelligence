@@ -14,8 +14,9 @@
 #ifndef _WATER_TASK_
 
 /* ::extern vars **/
-extern long duration;
+extern float duration;
 extern unsigned long previousMillis;
+extern int water_state;
 
 /* public functions **/
 

@@ -33,7 +33,7 @@ DHT dht(DHTPIN, DHTTYPE);
   +------------------------------------------------------------------------*/
 void /**/COM_init(void)
 {
-  unsigned long timeout = 100;
+  unsigned long timeout = 2000;
   Serial.begin(115200);
   dht.begin();
   pinMode(LIGHT_SENSOR, INPUT);
@@ -96,6 +96,8 @@ int16_t read_i16()
   return (((int16_t) buffer[0]) & 0xff) | (((int16_t) buffer[1]) << 8 & 0xff00);
 }
 
+float read_float() {}
+
 //uint8_t is an unsigned 8 bit integer, uint8_t* is a pointer to an 8 bit integer in ram/memory
 //The & in front of the pointer type variable will show the actual data held by the pointer.
 void write_order(int myOrder) {
@@ -107,7 +109,7 @@ void write_i8(int8_t num) {
   Serial.write(num);
 }
 
-
+//Not understanding this
 void write_i16(int16_t num)
 {
   int8_t buffer[2] = {(int8_t) (num & 0xff), (int8_t) (num >> 8)};
@@ -189,7 +191,7 @@ void COM_task(void)
             msg = msg * 100 / 560;
           } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
             msg = analogRead(sensor);
-
+            msg = msg*100/660;
           }
           if (msg != 10000) {
             write_startbyte();
@@ -225,13 +227,13 @@ void COM_task(void)
 
       } else {
         write_order(ERROR);
-        write_i16(402);
+        write_i16(order);
         return;
 
       }
     } else {
       write_order(ERROR);
-      write_i16(order_received);
+      write_i16(401);
       return;
     }
   }

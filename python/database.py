@@ -10,14 +10,14 @@ plants = {
     },
     1: {
         "name": "Rose",
-        "water quantity": 10,
+        "water quantity": 100,
         "humidity threshold min": 10,
         "humidity threshold max": 10,
         "light intensity":10,
     },
     2:{
         "name":"Cactus",
-        "water quantity": 10,
+        "water quantity": 50,
         "humidity threshold min": 10,
         "humidity threshold max": 10,
         "light intensity":10,
@@ -25,7 +25,7 @@ plants = {
     },
     3:{
         "name":"Sunflower",
-        "water quantity": 10,
+        "water quantity": 150,
         "humidity threshold min": 10,
         "humidity threshold max": 10,
         "light intensity":10,
@@ -36,7 +36,7 @@ garden = {
     0: {
         "type": 1,
         "angle": 0,
-        "humiditysensor value":0,
+        "humiditysensor value":36,
     },
     1: {
         "type": 0,
