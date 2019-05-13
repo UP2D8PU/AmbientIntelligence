@@ -29,106 +29,164 @@
         <p class="lead">Here you can monitor your plants, and make sure they always have the perfect conditions even though you are not at home.</p>
     </div>
         <div class="container">
-
+            <form action="{{ url_for('hello_world') }}" method="post">
             <div class="row">
                 <div class="col" style = "border-style: solid; border-right-style: none; background-color: #6497b1;">
                     <h2>Sensordata</h2>
                     <p>
-                        Temperatur: {{ dict["temperature value"] }} Kelvin <br />
+                        Temperatur: {{ dict["temperature value"] }}° Celsius <br />
                         Air humidity: {{ dict["airhumidity value"] }} % <br />
                         Light intensity: {{dict["lightsensor value"] }} % <br />
                     </p>
                 </div>
                 <div class="col col-lg-2" style ="border-style: solid; border-left-style: none;background-color: #6497b1;">
-                    <a href="/update">
-                        <button type="button" name="update" class="btn btn-secondary" style ="margin-top: 30px">Update all sensor values</button>
-                    </a>
+                        <button type="submit" name="update" class="btn btn-secondary" data-toggle="tooltip" title="The sensor values are read every minute. If not updated, wait some time, and try again!" style ="margin-top: 30px">Update all sensor values</button>
                 </div>
                 <div class="w-100"></div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
                     <h3> Plant 1: {{type[0]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[0]["humiditysensor value"] }} %
-                    </p>
 
-                    <form action="{{ url_for('water1') }}" method="post">
-                        <input type="text" name="projectFilepath">
-                        <input type="submit">
-                    </form>
 
-                    {% if garden[0]["type"] != 0 %}
-                    <button type="button" name="water" id="water1" class="btn btn-success" value="1">Water plant</button>
-                    {% else %}
-                    <button type="button" name="add" id="add_plant1" class="btn btn-success" value="1">Add plant</button>
-                    {% endif %}
-                </div>
-                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
-                    <h3> Plant 2: {{type[1]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[1]["humiditysensor value"] }} %
-                    </p>
-
-                    <form action="{{ url_for('water2') }}" method="post">
-                        {% if garden[1]["type"] != 0 %}
-                        <button type="button" name="button" id="water2" class="btn btn-success" value="water">Water plant</button>
+                        {% if garden[0]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water1" class="btn btn-primary" value="water1" data-toggle="popover" data-trigger="focus" data-title="Your plant is getting water!">Water plant</button>
                         {% else %}
-                        <div class="btn-group">
-                            <button type="button" name="button" value="add" class="btn btn-info">Add plant</button>
-                            <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                {% for x in plants %}
-                                <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x.name }}</option>
-                                {% endfor %}
+                        <div class="input-group">
+                            <select name="add_plant1" class="custom-select" id="inputGroupSelect01">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add1" class="btn btn-outline-secondary" type="submit">Add</button>
                             </div>
                         </div>
                         {% endif %}
-                    </form>
+
+                </div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 2: {{type[1]}} </h3>
+
+
+                        {% if garden[1]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water2" class="btn btn-primary" value="water2" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant2" class="custom-select" id="inputGroupSelect02">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add2" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
                 </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
                     <h3> Plant 3: {{type[2]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[2]["humiditysensor value"] }} %
-                    </p>
-                    {% if garden[2]["type"] != 0 %}
-                    <a href=/water3><button type="button" name="water" id="water3" class="btn btn-success" value="3">Water plant</button></a>
-                    {% else %}
-                    <a href=/add_plant><button type="button" name="add" id="add_plant3" class="btn btn-success" value="3">Add plant</button></a>
-                    {% endif %}                </div>
+
+                        {% if garden[2]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[2]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water3" class="btn btn-primary" value="water3" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant3" class="custom-select" id="inputGroupSelect03">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add3" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
                 <div class="w-100"></div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
                     <h3> Plant 4: {{type[3]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[3]["humiditysensor value"] }} %
-                    </p>
-                    {% if garden[3]["type"] != 0 %}
-                    <a href=/water4><button type="button" name="water" id="water4" class="btn btn-success" value="4">Water plant</button></a>
-                    {% else %}
-                    <a href=/add_plant><button type="button" name="add" id="add_plant4" class="btn btn-success" value="4">Add plant</button></a>
-                    {% endif %}                </div>
+
+
+                        {% if garden[3]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water4" class="btn btn-primary" value="water4" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant4" class="custom-select" id="inputGroupSelect04">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add4" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
                     <h3> Plant 5: {{type[4]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[4]["humiditysensor value"] }} %
-                    </p>
-                    {% if garden[4]["type"] != 0 %}
-                    <a href=/water5><button type="button" name="water" id="water5" class="btn btn-success" value="5">Water plant</button></a>
-                    {% else %}
-                    <a href=/add_plant><button type="button" name="add" id="add_plant5" class="btn btn-success" value="5">Add plant</button></a>
-                    {% endif %}                </div>
+
+                        {% if garden[4]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water5" class="btn btn-primary" value="water5" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant5" class="custom-select" id="inputGroupSelect05">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add5" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
                 <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
                     <h3> Plant 6: {{type[5]}} </h3>
-                    <p>
-                        Soil humidity : {{ garden[5]["humiditysensor value"] }} %
-                    </p>
-                    {% if garden[5]["type"] != 0 %}
-                    <a href=/water6><button type="button" name="water" id="water6" class="btn btn-success" value="6">Water plant</button></a>
-                    {% else %}
-                    <a href=/add_plant><button type="button" name="add" id="add_plant6" class="btn btn-success" value="6">Add plant</button></a>
-                    {% endif %}                </div>
-            </div>
 
+                        {% if garden[5]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water6" class="btn btn-primary" value="water6" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant6" class="custom-select" id="inputGroupSelect06">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add6" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+            </div>
+            </form>
         </div>
     </div>
 
