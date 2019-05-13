@@ -58,7 +58,7 @@ def get_serial_ports():
     return results
 
 # Open serial port (for communication with Arduino)
-def open_serial_port(serial_port=None, baudrate=115200, timeout=None, write_timeout=0):
+def open_serial_port(serial_port=None, baudrate=115200, timeout=0, write_timeout=0):
     #If serial port is not specified, it can be detected with get_serial_ports()
     if serial_port is None:
         serial_port = get_serial_ports()[0]

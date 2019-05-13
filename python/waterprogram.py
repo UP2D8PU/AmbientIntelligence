@@ -20,7 +20,6 @@ class Order(Enum):
     REQUEST_SENSOR = 5
     SENSOR_MSG = 6
     ACTION_WATER_PLANT = 7
-    ACTION_WATER_QUANTITY = 8
     # ACTION_STOP_WATER = 9
     # WATERING_FINISHED = 10
 
@@ -162,7 +161,7 @@ class WaterProgram(object):
         print("Connected to Arduino")
 
         self.command_queue = CustomQueue(20)
-        self.n_messages_allowed = 20
+        self.n_messages_allowed = 10
         self.n_received_tokens = threading.Semaphore(self.n_messages_allowed)
         self.serial_lock = threading.Lock()
         self.exit_event = threading.Event()
@@ -197,10 +196,10 @@ class WaterProgram(object):
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-        self.command_queue.put((Order.START_BYTE, -1, -1))
-        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
-        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
-        self.command_queue.put((Order.CHECKSUM, checksum, -1))
+        #self.command_queue.put((Order.START_BYTE, -1, -1))
+        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
+        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
+        #self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
         #self.command_queue.put((Order.START_BYTE, -1, -1))
         #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2, -1))
@@ -236,10 +235,25 @@ class WaterProgram(object):
                 print("Evaluated and giving water")
 
 
+
+    def run(self):
+        i =1;
+        while i==1:
+            self.retrieve_all_sensor_data()
+            print("timeout")
+            timeout_milliseconds(500)
+            self.evaluate_sensor_data()
+            i = 2
+            timeout_milliseconds(5000)
+            self.retrieve_all_sensor_data()
+            print("timeout")
+            timeout_milliseconds(500)
+            self.evaluate_sensor_data()
+
 #def main():
 #    wp = WaterProgram()
 #    wp.run()
 
-
+#
 #if __name__ == "__main__":
 #    main()
