@@ -9,18 +9,18 @@
 #include "Servo.h"
 #include "devices.h"
 #include "comm.h"
-#include "var_types.h"
+//#include "var_types.h"
 
 #ifndef _WATER_TASK_
+
 /* ::extern vars **/
-
-//extern uint8 WATER_timer;  /* 10 ms */
-
+extern long duration;
+extern unsigned long previousMillis;
 
 /* public functions **/
 
 void WATER_init(void);
-void UPDATE_motor(uint8_t angle);
+void update_motor(uint8_t angle);
 void WATER_task(void);
 void timeout_milliseconds(unsigned long timeout);
 

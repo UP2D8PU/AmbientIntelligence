@@ -16,6 +16,7 @@ uint8_t checksum;
 bool message_received;
 bool is_connected;
 unsigned long timeout = 100;
+int testint = 0 ;
 
 
 /* Functions for init**/
@@ -32,14 +33,14 @@ DHT dht(DHTPIN, DHTTYPE);
   +------------------------------------------------------------------------*/
 void /**/COM_init(void)
 {
-  unsigned long timeout = 100; 
+  unsigned long timeout = 100;
   Serial.begin(115200);
   dht.begin();
   pinMode(LIGHT_SENSOR, INPUT);
   pinMode(HUMIDITY_SENSOR_1, INPUT);
 
   is_connected = false;
-  while (!is_connected){
+  while (!is_connected) {
     write_order(HELLO);
     wait_for_bytes(1, timeout);
     COM_task();
@@ -48,7 +49,7 @@ void /**/COM_init(void)
   write_order(RECEIVED);
   int16_t checksum_to_send = (START_BYTE + RECEIVED);
   write_checksum(checksum_to_send);
-  
+
 }
 
 
@@ -64,13 +65,13 @@ void wait_for_bytes(int num_bytes, unsigned long timeout)
   while ((Serial.available() < num_bytes) && (millis() - startTime < timeout)) {} //remove BYTE_timer
 }
 
-Order read_order() { 
+Order read_order() {
   wait_for_bytes(1, timeout);
   return (Order) Serial.read();
 }
 
 int8_t read_i8() {
-  
+
   wait_for_bytes(1, timeout); // Wait for 1 byte with a timeout of 100 ms
   return (int8_t) Serial.read();
 }
@@ -135,6 +136,7 @@ void write_order(enum Order order)
 void COM_task(void)
 {
   if (Serial.available() > 0) {
+
     int16_t checksum = 0 ;
     Order order_received = read_order();
 
@@ -154,82 +156,87 @@ void COM_task(void)
     else if (order_received == ALREADY_CONNECTED) {
       is_connected = true;
     } else {
-      if (order_received == START_BYTE) {
-        checksum = START_BYTE;
-        Order order = read_order();
-        checksum += order;
-        if (order == REQUEST_SENSOR) {
-          int8_t sensor = read_i8();
-          checksum += sensor;
-          int16_t received_checksum = read_i16();
+      switch (order_received) {
+        case START_BYTE:
+          {
+            checksum = START_BYTE;
+            Order order = read_order();
+            checksum += order;
+          }
+        case REQUEST_SENSOR:
+          {
+            int8_t sensor = read_i8();
+            checksum += sensor;
+            int16_t received_checksum = read_i16();
 
-          write_startbyte();
-          write_order(RECEIVED);
-          int16_t checksum_received_message = (START_BYTE + RECEIVED);
-          write_checksum(checksum_received_message);
+            write_startbyte();
+            write_order(RECEIVED);
+            int16_t checksum_received_message = (START_BYTE + RECEIVED);
+            write_checksum(checksum_received_message);
 
-          if (checksum - received_checksum == 0) {
-            int msg = 10000;
-            if (sensor == TEMPERATURE_SENSOR) {
-              float t = dht.readTemperature();
-              msg = (int)(t * 10);
-              if (isnan(msg)) {
-                //Print error
+            if (checksum - received_checksum == 0) {
+              int msg = 10000;
+              if (sensor == TEMPERATURE_SENSOR) {
+                float t = dht.readTemperature();
+                msg = (int)(t * 10);
+                if (isnan(msg)) {
+                  //Print error
+                  return;
+                }
+              } else if (sensor == AIRHUMIDITY_SENSOR) {
+                float h = dht.readHumidity();
+                msg = (int)(h * 10);
+                if (isnan(msg)) {
+                  //Print error
+                  return;
+                }
+              } else if (sensor == LIGHT_SENSOR) {
+                msg = analogRead(LIGHT_SENSOR);
+                msg = msg * 100 / 560;
+              } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
+                msg = analogRead(sensor);
+
+              }
+              if (msg != 10000) {
+                write_startbyte();
+                write_order(SENSOR_MSG);
+                write_i8(sensor);
+                write_i16(msg);
+                checksum = (START_BYTE + SENSOR_MSG + sensor + msg);
+                write_checksum(checksum);
+              } else {
+                write_order(ERROR);
+                write_i16(404);
                 return;
               }
-            } else if (sensor == AIRHUMIDITY_SENSOR) {
-              float h = dht.readHumidity();
-              msg = (int)(h * 10);
-              if (isnan(msg)) {
-                //Print error
-                return;
-              }
-            } else if (sensor == LIGHT_SENSOR) {
-              msg = analogRead(LIGHT_SENSOR);
-              msg = msg*100/560;
-            } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
-              msg = analogRead(sensor);
-              msg = msg*100/666;
-            }
-            if (msg != 10000) {
-              write_startbyte();
-              write_order(SENSOR_MSG);
-              write_i8(sensor);
-              write_i16(msg);
-              checksum = (START_BYTE + SENSOR_MSG + sensor + msg);
-              write_checksum(checksum);
-            } else {
-              write_order(ERROR);
-              write_i16(404);
-              return;
             }
           }
-        }
 
-        else if (order == ACTION_WATER_PLANT)
-        {
-          uint8_t plant;
-          uint16_t quantity;
-          plant = read_i8();
-          quantity = read_i16();
-          checksum = checksum + plant + quantity;
-          int16_t received_checksum = read_i16();
+        case ACTION_WATER_PLANT:
+          {
+            uint8_t plant;
+            uint16_t quantity;
+            plant = read_i8();
+            quantity = read_i16();
+            checksum = checksum + plant + quantity;
+            int16_t received_checksum = read_i16();
 
-          write_startbyte();
-          write_order(RECEIVED);
-          int16_t checksum_to_send = (START_BYTE + RECEIVED);
-          write_checksum(checksum_to_send);
+            write_startbyte();
+            write_order(RECEIVED);
+            int16_t checksum_to_send = (START_BYTE + RECEIVED);
+            write_checksum(checksum_to_send);
 
-          if (received_checksum - checksum == 0) {
-            angle_queue.enqueue (plant);
-            water_quantity_queue.enqueue (quantity);
-
+            if (received_checksum - checksum == 0) {
+              angle_queue.enqueue (plant);
+              water_quantity_queue.enqueue (quantity);
+            }
           }
-        } else {
-          write_order(ERROR);
-          write_i16(402);
-          return;
-        }
+
+        default: 
+            write_order(ERROR);
+            write_i16(402);
+            return;
+          
       }
     }
   }

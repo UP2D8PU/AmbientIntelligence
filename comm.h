@@ -1,5 +1,4 @@
 #include "order.h"
-#include "order.h"
 #include <stdio.h>
 #include <stdint.h>  /* uint8_t, ... */
 #include <Arduino.h>
@@ -10,6 +9,8 @@
 
 #ifndef _COM_TASK_
 /* ::extern vars **/
+
+
 
 //extern uint8_t COM_timer;  /* 10 ms */
 //extern uint8_t BYTE_timer;
