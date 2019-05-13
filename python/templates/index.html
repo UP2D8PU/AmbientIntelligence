@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+    <title>Flask Internet of Things App</title>
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/jumbotron-narrow.css') }}" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="container">
+    <div class="jumbotron" style="padding-top: 50px;">
+        <h1>Welcome to your garden monitor!</h1>
+        <p class="lead">Here you can monitor your plants, and make sure they always have the perfect conditions even though you are not at home.</p>
+    </div>
+        <div class="container">
+            <form action="{{ url_for('init') }}" method="post">
+            <div class="row">
+                <div class="col" style = "border-style: solid; border-right-style: none; background-color: #6497b1;">
+                    <h2>Sensordata</h2>
+                    <p>
+                        Temperatur: {{ dict["temperature value"] }}° Celsius <br />
+                        Air humidity: {{ dict["airhumidity value"] }} % <br />
+                        Light intensity: {{dict["lightsensor value"] }} % <br />
+                    </p>
+                </div>
+                <div class="col col-lg-2" style ="border-style: solid; border-left-style: none;background-color: #6497b1;">
+                        <button type="submit" name="button" value="update" class="btn btn-secondary" data-toggle="tooltip" title="The sensor values are read every minute. If not updated, wait some time, and try again!" style ="margin-top: 30px">Update all sensor values</button>
+                </div>
+                <div class="w-100"></div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 1: {{type[0]}} </h3>
+
+
+                        {% if garden[0]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water1" class="btn btn-primary" value="water1" data-toggle="popover" data-trigger="focus" data-title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete1" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant1" class="custom-select" id="inputGroupSelect01">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add1" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 2: {{type[1]}} </h3>
+
+
+                        {% if garden[1]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water2" class="btn btn-primary" value="water2" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete2" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant2" class="custom-select" id="inputGroupSelect02">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add2" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 3: {{type[2]}} </h3>
+
+                        {% if garden[2]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[2]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water3" class="btn btn-primary" value="water3" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete3" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant3" class="custom-select" id="inputGroupSelect03">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add3" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+                <div class="w-100"></div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 4: {{type[3]}} </h3>
+
+
+                        {% if garden[3]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water4" class="btn btn-primary" value="water4" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete4" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant4" class="custom-select" id="inputGroupSelect04">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add4" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 5: {{type[4]}} </h3>
+
+                        {% if garden[4]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water5" class="btn btn-primary" value="water5" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete5" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant5" class="custom-select" id="inputGroupSelect05">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add5" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+                <div class="col" style="padding: 10px 10px 10px 10px; border-style: solid; background-color: #b3cde0;">
+                    <h3> Plant 6: {{type[5]}} </h3>
+
+                        {% if garden[5]["type"] != 0 %}
+                        <p>
+                            Soil humidity : {{ garden[1]["humiditysensor value"] }} %
+                        </p>
+                        <button type="submit" name="button" id="water6" class="btn btn-primary" value="water6" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete6" class="btn btn-danger">Delete plant</button>
+                        {% else %}
+                        <div class="input-group">
+                            <select name="add_plant6" class="custom-select" id="inputGroupSelect06">
+                                <option selected>Choose a plant</option>
+                                <option value="1">{{plants_dict[1]["name"]}}</option>
+                                <option value="2">{{plants_dict[2]["name"]}}</option>
+                                <option value="3">{{plants_dict[3]["name"]}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button name = "button" value="add6" class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+
+
+    <footer class="footer">
+        <p>&copy; 2019 Nina&Charlotte</p>
+    </footer>
+
+</div>
+<!-- /container -->
+<script src="https://code.jquery.com/jquery.js"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/application.js') }}"></script>
+</body>
+
+</html>

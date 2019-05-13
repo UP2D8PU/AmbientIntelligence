@@ -1,7 +1,7 @@
 
 plants = {
     0: {
-        "name": "No plant in this position",
+        "name": "No plant",
         "water quantity": 0,
         "humidity threshold min": 0,
         "humidity threshold max": 0,
