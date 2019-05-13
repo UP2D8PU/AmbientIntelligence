@@ -29,7 +29,7 @@
         <p class="lead">Here you can monitor your plants, and make sure they always have the perfect conditions even though you are not at home.</p>
     </div>
         <div class="container">
-            <form action="{{ url_for('hello_world') }}" method="post">
+            <form action="{{ url_for('init') }}" method="post">
             <div class="row">
                 <div class="col" style = "border-style: solid; border-right-style: none; background-color: #6497b1;">
                     <h2>Sensordata</h2>
@@ -52,6 +52,7 @@
                             Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water1" class="btn btn-primary" value="water1" data-toggle="popover" data-trigger="focus" data-title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete1" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant1" class="custom-select" id="inputGroupSelect01">
@@ -76,6 +77,7 @@
                             Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water2" class="btn btn-primary" value="water2" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete2" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant2" class="custom-select" id="inputGroupSelect02">
@@ -99,6 +101,7 @@
                             Soil humidity : {{ garden[2]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water3" class="btn btn-primary" value="water3" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete3" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant3" class="custom-select" id="inputGroupSelect03">
@@ -124,6 +127,7 @@
                             Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water4" class="btn btn-primary" value="water4" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete4" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant4" class="custom-select" id="inputGroupSelect04">
@@ -147,6 +151,7 @@
                             Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water5" class="btn btn-primary" value="water5" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete5" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant5" class="custom-select" id="inputGroupSelect05">
@@ -170,6 +175,7 @@
                             Soil humidity : {{ garden[1]["humiditysensor value"] }} %
                         </p>
                         <button type="submit" name="button" id="water6" class="btn btn-primary" value="water6" data-toggle="popover" data-trigger="focus" title="Your plant is getting water!">Water plant</button>
+                        <button type="submit" name="button" value="delete6" class="btn btn-danger">Delete plant</button>
                         {% else %}
                         <div class="input-group">
                             <select name="add_plant6" class="custom-select" id="inputGroupSelect06">

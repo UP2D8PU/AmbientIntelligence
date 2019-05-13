@@ -10,18 +10,12 @@ from python.waterprogram import *
 
 app = Flask(__name__)
 
-@app.route('/plant', methods=['POST'])
-def tt():
-    type= [plants[garden[0]["type"]]["name"],plants[garden[1]["type"]]["name"],plants[garden[2]["type"]]["name"],plants[garden[3]["type"]]["name"],plants[garden[4]["type"]]["name"],plants[garden[5]["type"]]["name"]]
-    return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
-
-
 @app.route('/', methods = ['POST','GET'])
-def hello_world():
+def init():
 
     if request.method=='GET':
         type= [plants[garden[0]["type"]]["name"],plants[garden[1]["type"]]["name"],plants[garden[2]["type"]]["name"],plants[garden[3]["type"]]["name"],plants[garden[4]["type"]]["name"],plants[garden[5]["type"]]["name"]]
-        return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
+        return render_template('index.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
 
     else:
 
@@ -32,6 +26,8 @@ def hello_world():
             value = int(request.form['add_plant1'])
             if (value !=0):
                 garden[0]["type"] = value
+        elif request.form['button'] == "delete1":
+                garden[0]["type"] = 0
 
         #For plant 2
         if request.form['button'] == "water2":
@@ -40,6 +36,8 @@ def hello_world():
             value = int(request.form['add_plant2'])
             if (value !=0):
                 garden[1]["type"] = value
+        elif request.form['button'] == "delete1":
+            garden[1]["type"] = 0
 
 
         #For plant 3
@@ -49,6 +47,8 @@ def hello_world():
             value = int(request.form['add_plant3'])
             if (value !=0):
                 garden[2]["type"] = value
+        elif request.form['button'] == "delete1":
+            garden[2]["type"] = 0
 
 
         #For plant 4
@@ -58,6 +58,8 @@ def hello_world():
             value = int(request.form['add_plant4'])
             if (value !=0):
                 garden[3]["type"] = value
+        elif request.form['button'] == "delete1":
+            garden[3]["type"] = 0
 
 
         #For plant 5
@@ -67,6 +69,8 @@ def hello_world():
             value = int(request.form['add_plant5'])
             if (value !=0):
                 garden[4]["type"] = value
+        elif request.form['button'] == "delete1":
+            garden[4]["type"] = 0
 
 
         #For plant 6
@@ -76,15 +80,12 @@ def hello_world():
             value = int(request.form['add_plant6'])
             if (value !=0):
                 garden[5]["type"] = value
-
+        elif request.form['button'] == "delete1":
+            garden[5]["type"] = 0
 
 
         type= [plants[garden[0]["type"]]["name"],plants[garden[1]["type"]]["name"],plants[garden[2]["type"]]["name"],plants[garden[3]["type"]]["name"],plants[garden[4]["type"]]["name"],plants[garden[5]["type"]]["name"]]
-        return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
-
-@app.route('/water1', methods=['POST'])
-def water1():
-    return render_template('index2.html', dict = sensor_values, garden = garden, plants_dict = plants)
+        return render_template('index.html', dict = sensor_values, garden = garden, plants_dict = plants, type=type)
 
 def sensordata():
     wp.retrieve_all_sensor_data()
@@ -111,11 +112,11 @@ job_defaults = {
     'max_instances': 3
 }
 if __name__ == '__main__':
-    wp = WaterProgram()
-    sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
-    sched.add_job(sensordata,'interval',minutes=1)
-    sched.add_job(dailywater,'interval',hours=24)
-    sched.start()
+    #wp = WaterProgram()
+    #sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
+    #sched.add_job(sensordata,'interval',minutes=1)
+    #sched.add_job(dailywater,'interval',hours=24)
+    #sched.start()
 
     #Register the function to be called on exit
     atexit.register(close_running_threads)
