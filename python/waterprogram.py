@@ -68,7 +68,6 @@ def decode_order(messages):
     debug = False
     try:
         order = (messages[0])
-        print("decode order")
         if order == Order.START_BYTE:
             msg = "START MSG"
         elif order == Order.HELLO:
@@ -84,7 +83,6 @@ def decode_order(messages):
         elif order == Order.START_BYTE:
             msg = "START"
         elif order == Order.SENSOR_MSG:
-            #print("a sensormsg is retrieved")
             sensor = messages[1]
             sensor_data = messages[2]
             msg = "sensormsg {}".format(sensor_data)
@@ -94,12 +92,8 @@ def decode_order(messages):
                 sensor_values["airhumidity value"] = sensor_data / 10;
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
-                print("LIGHT SENSOR:")
-                print(sensor_values["lightsensor value"])
             elif sensor == 1:
                 garden[0]["humiditysensor value"] = sensor_data
-                print("HUM1 SENSOR:")
-                print(garden[0]["humiditysensor value"])
             elif sensor == 2:
                 garden[1]["humiditysensor value"] = sensor_data
             elif sensor == 3:
@@ -189,7 +183,6 @@ class WaterProgram(object):
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
     def retrieve_all_sensor_data(self):
-        print("sensordata asked for")
         self.command_queue.put((Order.START_BYTE, -1, -1))
         self.command_queue.put((Order.REQUEST_SENSOR, self.TEMPERATURE_SENSOR, -1))
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.TEMPERATURE_SENSOR])
@@ -241,17 +234,8 @@ class WaterProgram(object):
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
-                print("Evaluated and watered")
-
-
-    def run(self):
-        while True:
-            if self.test:
-                self.retrieve_all_sensordata()
-                self.test=False
-                timeout_milliseconds(10000)
-                self.retrieve_all_sensordata()
-
+                print(round(quantity))
+                print("Evaluated and giving water")
 
 
 #def main():

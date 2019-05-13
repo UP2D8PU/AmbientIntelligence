@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
-import time
-from threading import Thread
 
 from python.database import *
 from python.waterprogram import *
@@ -90,7 +88,7 @@ def init():
 def sensordata():
     wp.retrieve_all_sensor_data()
     print("Retrieve all sensordata!")
-    wp.timeout_milliseconds(500)
+    timeout_milliseconds(500)
     wp.evaluate_sensor_data()
     print("Evaluate sensor_values")
 
@@ -112,11 +110,11 @@ job_defaults = {
     'max_instances': 3
 }
 if __name__ == '__main__':
-    #wp = WaterProgram()
-    #sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
-    #sched.add_job(sensordata,'interval',minutes=1)
-    #sched.add_job(dailywater,'interval',hours=24)
-    #sched.start()
+    wp = WaterProgram()
+    sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
+    sched.add_job(sensordata,'interval',minutes=1)
+    sched.add_job(dailywater,'interval',hours=24)
+    sched.start()
 
     #Register the function to be called on exit
     atexit.register(close_running_threads)

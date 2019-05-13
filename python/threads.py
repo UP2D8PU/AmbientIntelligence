@@ -8,7 +8,7 @@ import python.waterprogram as wp
 from .waterprogram import *
 from .utilities import *
 
-rate = 1 / 2  # in millisec: 2000 Hz (limit the rate of communication with the arduino)
+rate = 1 / 2000  # in millisec: 2000 Hz (limit the rate of communication with the arduino)
 
 
 """
@@ -53,25 +53,25 @@ class CommandThread(threading.Thread):
             try:
                 order, param1,param2 = self.command_queue.get_nowait()
             except queue.Empty:
-                wp.timeout_milliseconds(rate)
-                #time.sleep(rate)
+                #wp.timeout_milliseconds(rate)
+                time.sleep(rate)
                 self.n_received_tokens.release()
                 continue
 
             with self.serial_lock:
                 if order.value != wp.Order.CHECKSUM.value:
                     wp.write_order(self.serial_file, order)
-                    print("order written")
+                    print("order written",order)
                     if param1 != -1:
                         wp.write_i8(self.serial_file, param1)
                     if param2 != -1:
-                        wp.write_i8(self.serial_file, param2)
+                        wp.write_i16(self.serial_file, param2)
                 else:
                     wp.write_i16(self.serial_file, param1)
 
                 self.messages=[]
-            wp.timeout_milliseconds(rate)
-            #time.sleep(rate)
+            #wp.timeout_milliseconds(rate)
+            time.sleep(rate)
         print("Command Thread Exited")
 
 
@@ -102,12 +102,12 @@ class ListenerThread(threading.Thread):
             try:
                 start_byte = bytearray(self.serial_file.read(1))
             except serial.SerialException:
-                wp.timeout_milliseconds(rate)
-                #time.sleep(rate)
+                #wp.timeout_milliseconds(rate)
+                time.sleep(rate)
                 continue
             if not start_byte:
-                wp.timeout_milliseconds(rate)
-                #time.sleep(rate)
+                #wp.timeout_milliseconds(rate)
+                time.sleep(rate)
                 continue
             start = start_byte[0]
 
@@ -136,7 +136,7 @@ class ListenerThread(threading.Thread):
                     except ValueError:
                         continue
                     if order == wp.Order.RECEIVED:
-                        print("Recieved message")
+                        print("Received message")
                         self.checksum = self.checksum + order.value
 
                         received_checksum = wp.read_i16(self.serial_file)
@@ -167,6 +167,6 @@ class ListenerThread(threading.Thread):
                     self.checksum = 0
                     self.messages = []
                     self.start_received = False
-            wp.timeout_milliseconds(rate)
-            #time.sleep(rate)
+            #wp.timeout_milliseconds(rate)
+            time.sleep(rate)
         print("Listener Thread Exited")

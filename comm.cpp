@@ -96,8 +96,6 @@ int16_t read_i16()
   return (((int16_t) buffer[0]) & 0xff) | (((int16_t) buffer[1]) << 8 & 0xff00);
 }
 
-float read_float() {}
-
 //uint8_t is an unsigned 8 bit integer, uint8_t* is a pointer to an 8 bit integer in ram/memory
 //The & in front of the pointer type variable will show the actual data held by the pointer.
 void write_order(int myOrder) {
@@ -109,7 +107,7 @@ void write_i8(int8_t num) {
   Serial.write(num);
 }
 
-//Not understanding this
+
 void write_i16(int16_t num)
 {
   int8_t buffer[2] = {(int8_t) (num & 0xff), (int8_t) (num >> 8)};
@@ -221,10 +219,6 @@ void COM_task(void)
         write_checksum(checksum_to_send);
 
         if (received_checksum - checksum == 0) {
-          write_startbyte();
-          write_order(RECEIVED);
-          int16_t checksum_to_send = (START_BYTE + RECEIVED);
-          write_checksum(checksum_to_send);
           angle_queue.enqueue (plant);
           water_quantity_queue.enqueue (quantity);
         }
@@ -237,7 +231,7 @@ void COM_task(void)
       }
     } else {
       write_order(ERROR);
-      write_i16(401);
+      write_i16(order_received);
       return;
     }
   }
