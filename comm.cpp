@@ -1,39 +1,21 @@
-#include "order.h"
-#include <stdio.h>
-#include <stdint.h>  /* uint8_t, ... */
-#include <Arduino.h>
-#include "QueueArray.h"
-#include "devices.h"
-#include <DHT.h>
-
-#define _COM_TASK_
-
-
-/* includes globais */
-
-/* includes globais do compilador WinAVR */
-
-#include <avr/io.h>
-
-
-/* includes específicos deste módulo */
+/* Include **/
 
 #include "comm.h"
 
+/* Define **/
 
-
-/* ::define **/
-
+#define _COM_TASK_
 
 /* Variables **/
 
-uint8_t COM_timer;  /* 10 ms */
-uint8_t BYTE_timer;  /* 10 ms */
+//uint8_t COM_timer;  /* 10 ms */
+//uint8_t BYTE_timer;  /* 10 ms */
 QueueArray <uint8_t> angle_queue; //Unit: degrees
-QueueArray <uint8_t> water_quantity_queue; //Unit:milliliters
+QueueArray <uint16_t> water_quantity_queue; //Unit:milliliters
 uint8_t checksum;
 bool message_received;
 bool is_connected;
+unsigned long timeout = 100;
 
 
 /* Functions for init**/
@@ -50,6 +32,7 @@ DHT dht(DHTPIN, DHTTYPE);
   +------------------------------------------------------------------------*/
 void /**/COM_init(void)
 {
+  unsigned long timeout = 100; 
   Serial.begin(115200);
   dht.begin();
   pinMode(LIGHT_SENSOR, INPUT);
@@ -58,7 +41,7 @@ void /**/COM_init(void)
   is_connected = false;
   while (!is_connected){
     write_order(HELLO);
-    wait_for_bytes(1, 100);
+    wait_for_bytes(1, timeout);
     COM_task();
   }
   write_startbyte();
@@ -74,20 +57,21 @@ void /**/COM_init(void)
   +------------------------------------------------------------------------*/
 
 
-void wait_for_bytes(int num_bytes, uint8_t timeout)
+void wait_for_bytes(int num_bytes, unsigned long timeout)
 {
-  uint8_t startTime = BYTE_timer;
+  unsigned long  startTime = millis();//BYTE_timer;
   //Wait for incoming bytes or exit if timeout
-  while ((Serial.available() < num_bytes) && (BYTE_timer - startTime < timeout)) {}
+  while ((Serial.available() < num_bytes) && (millis() - startTime < timeout)) {} //remove BYTE_timer
 }
 
-Order read_order() {
-  wait_for_bytes(1, 100);
+Order read_order() { 
+  wait_for_bytes(1, timeout);
   return (Order) Serial.read();
 }
 
 int8_t read_i8() {
-  wait_for_bytes(1, 100); // Wait for 1 byte with a timeout of 100 ms
+  
+  wait_for_bytes(1, timeout); // Wait for 1 byte with a timeout of 100 ms
   return (int8_t) Serial.read();
 }
 void read_signed_bytes(int8_t* buffer, size_t n)
@@ -106,7 +90,7 @@ void read_signed_bytes(int8_t* buffer, size_t n)
 int16_t read_i16()
 {
   int8_t buffer[2];
-  wait_for_bytes(2, 100); // Wait for 2 bytes with a timeout of 100 ms
+  wait_for_bytes(2, timeout); // Wait for 2 bytes with a timeout of 100 ms
   read_signed_bytes(buffer, 2);
   return (((int16_t) buffer[0]) & 0xff) | (((int16_t) buffer[1]) << 8 & 0xff00);
 }
@@ -202,8 +186,10 @@ void COM_task(void)
               }
             } else if (sensor == LIGHT_SENSOR) {
               msg = analogRead(LIGHT_SENSOR);
+              msg = msg*100/560;
             } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
-              msg = digitalRead(sensor);
+              msg = analogRead(sensor);
+              msg = msg*100/666;
             }
             if (msg != 10000) {
               write_startbyte();
@@ -222,10 +208,11 @@ void COM_task(void)
 
         else if (order == ACTION_WATER_PLANT)
         {
-          uint8_t plant, amount;
+          uint8_t plant;
+          uint16_t quantity;
           plant = read_i8();
-          amount = read_i8();
-          checksum = checksum + plant + amount;
+          quantity = read_i16();
+          checksum = checksum + plant + quantity;
           int16_t received_checksum = read_i16();
 
           write_startbyte();
@@ -235,7 +222,7 @@ void COM_task(void)
 
           if (received_checksum - checksum == 0) {
             angle_queue.enqueue (plant);
-            water_quantity_queue.enqueue (amount);
+            water_quantity_queue.enqueue (quantity);
 
           }
         } else {
