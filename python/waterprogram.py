@@ -134,7 +134,6 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_4 = 4
         self.HUMIDITY_SENSOR_5 = 5
         self.HUMIDITY_SENSOR_6 = 6
-        self.test = True
 
         self.air_humidity_threshold  = 85
         self.temperature_high_threshold = 25
@@ -219,8 +218,7 @@ class WaterProgram(object):
         for i in range(0, 6):
             type = garden[i]["type"]
             if (type > 0) and (garden[i]["humiditysensor value"] <  plants[type]["humidity threshold max"]):
-                water_quantity = plants[type]["water quantity"]
-                garden[i]["water"] = water_quantity
+                self.water_plant(garden[i]["angle"], plants[garden[i]["type"]]["water quantity"])
 
     def evaluate_sensor_data(self):
         for i in range(0,5):
