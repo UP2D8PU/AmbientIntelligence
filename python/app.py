@@ -110,11 +110,11 @@ job_defaults = {
     'max_instances': 3
 }
 if __name__ == '__main__':
-    wp = WaterProgram()
-    sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
-    sched.add_job(sensordata,'interval',minutes=2)
-    sched.add_job(dailywater,'interval',hours=24)
-    sched.start()
+    #wp = WaterProgram()
+    #sched = BackgroundScheduler(daemon=True, job_defaults=job_defaults)
+    #sched.add_job(sensordata,'interval',minutes=2)
+    #sched.add_job(dailywater,'interval',hours=24)
+    #sched.start()
 
     #Register the function to be called on exit
     atexit.register(close_running_threads)
