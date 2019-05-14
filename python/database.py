@@ -36,7 +36,7 @@ garden = {
     0: {
         "type": 1,
         "angle": 0,
-        "humiditysensor value":36,
+        "humiditysensor value":0,
     },
     1: {
         "type": 0,

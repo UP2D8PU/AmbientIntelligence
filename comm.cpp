@@ -191,7 +191,7 @@ void COM_task(void)
             msg = msg * 100 / 560;
           } else if (sensor == HUMIDITY_SENSOR_1 || sensor == HUMIDITY_SENSOR_2 || sensor == HUMIDITY_SENSOR_3 || sensor == HUMIDITY_SENSOR_4 || sensor == HUMIDITY_SENSOR_5 || sensor == HUMIDITY_SENSOR_6) {
             msg = analogRead(sensor);
-            msg = msg*100/660;
+            msg = map(msg, 0, 1023, 0, 100)*100/65;
           }
           if (msg != 10000) {
             write_startbyte();

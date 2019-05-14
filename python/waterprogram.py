@@ -91,8 +91,10 @@ def decode_order(messages):
                 sensor_values["airhumidity value"] = sensor_data / 10;
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
+                print("light: " + str(sensor_data))
             elif sensor == 1:
                 garden[0]["humiditysensor value"] = sensor_data
+                print("hum1: " + str(sensor_data))
             elif sensor == 2:
                 garden[1]["humiditysensor value"] = sensor_data
             elif sensor == 3:
@@ -191,10 +193,10 @@ class WaterProgram(object):
         checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.LIGHT_SENSOR])
         self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
-        #self.command_queue.put((Order.START_BYTE, -1, -1))
-        #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
-        #checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
-        #self.command_queue.put((Order.CHECKSUM, checksum, -1))
+        self.command_queue.put((Order.START_BYTE, -1, -1))
+        self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_1, -1))
+        checksum = generate_checksum([Order.REQUEST_SENSOR.value, self.HUMIDITY_SENSOR_1])
+        self.command_queue.put((Order.CHECKSUM, checksum, -1))
 
         #self.command_queue.put((Order.START_BYTE, -1, -1))
         #self.command_queue.put((Order.REQUEST_SENSOR, self.HUMIDITY_SENSOR_2, -1))
@@ -226,29 +228,30 @@ class WaterProgram(object):
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
-                print(round(quantity))
-                print("Evaluated and giving water")
+                #print("Evaluated and giving water")
+
 
 
 
     def run(self):
-        i =1;
-        while i==1:
-            self.retrieve_all_sensor_data()
-            print("timeout")
-            timeout_milliseconds(500)
+        bol = True
+        i =1
+        while bol:
+            print("1")
+            timeout_milliseconds(2000)
             self.evaluate_sensor_data()
-            i = 2
-            timeout_milliseconds(5000)
             self.retrieve_all_sensor_data()
-            print("timeout")
-            timeout_milliseconds(500)
-            self.evaluate_sensor_data()
+            bol = False
 
-#def main():
-#    wp = WaterProgram()
-#    wp.run()
 
-#
-#if __name__ == "__main__":
-#    main()
+
+
+
+
+def main():
+    wp = WaterProgram()
+    wp.run()
+
+
+if __name__ == "__main__":
+    main()
