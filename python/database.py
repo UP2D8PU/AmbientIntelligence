@@ -72,5 +72,9 @@ sensor_values = {
         "temperature value": 0,
         "airhumidity value": 0,
         "lightsensor value": 0,
+        "air humidity threshold": 85,
+        "temperature high threshold": 25,
+        "temperature low threshold": 20,
+        "light intensity threshold": 100,
 
 };

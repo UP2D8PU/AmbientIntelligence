@@ -134,11 +134,6 @@ class WaterProgram(object):
         self.HUMIDITY_SENSOR_5 = 5
         self.HUMIDITY_SENSOR_6 = 6
 
-        self.air_humidity_threshold  = 85
-        self.temperature_high_threshold = 25
-        self.temperature_low_threshold = 20
-        self.light_intensity_threshold = 100 
-
         try:
             ser = open_serial_port()
         except Exception as e:
@@ -222,12 +217,12 @@ class WaterProgram(object):
     def evaluate_sensor_data(self):
         for i in range(0,5):
             quantity=0
-            if garden[i]["type"]>0 and sensor_values["airhumidity value"] < self.air_humidity_threshold :
+            if garden[i]["type"]>0 and sensor_values["airhumidity value"] < sensor_values["air humidity threshold"]:
                 if garden[i]["humiditysensor value"] < plants[garden[i]["type"]]["humidity threshold min"]:
                     quantity = plants[garden[i]["type"]]["water quantity"]
-                if sensor_values["temperature value"] > self.temperature_high_threshold:
+                if sensor_values["temperature value"] > sensor_values["temperature high threshold"]:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
-                elif sensor_values["temperature value"] > self.temperature_low_threshold and sensor_values["lightsensor value"] > self.light_intensity_threshold:
+                elif sensor_values["temperature value"] > sensor_values["temperature low threshold"] and sensor_values["lightsensor value"] > sensor_values["light intensity threshold"]:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
