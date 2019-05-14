@@ -2,7 +2,6 @@ from enum import Enum
 import struct
 import threading
 import time
-import schedule
 
 from python.threads import *  # CommandThread, ListenerThread
 from python.utilities import *  # CustomQueue, open_serial_port

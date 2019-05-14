@@ -68,7 +68,6 @@ garden = {
 };
 
 sensor_values = {
-        "updated": 0,
         "temperature value": 0,
         "airhumidity value": 0,
         "lightsensor value": 0,

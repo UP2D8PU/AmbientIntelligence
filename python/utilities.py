@@ -9,7 +9,6 @@ except ImportError:
     import Queue as queue
 
 import serial
-import os
 
 
 
