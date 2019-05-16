@@ -87,14 +87,11 @@ def init():
 
 def sensordata():
     wp.retrieve_all_sensor_data()
-    print("Retrieve all sensordata!")
     timeout_milliseconds(500)
     wp.evaluate_sensor_data()
-    print("Evaluate sensor_values")
 
 def dailywater():
     wp.daily_water()
-    print("Daily water given")
 
 #defining function to run on shutdown
 def close_running_threads():

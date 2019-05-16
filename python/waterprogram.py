@@ -150,7 +150,6 @@ class WaterProgram(object):
                 #time.sleep(2)
                 continue
             byte = bytes_array[0]
-            print(byte)
             if byte in [Order.HELLO.value, Order.ALREADY_CONNECTED.value]:
                 is_connected = True
 
@@ -228,7 +227,6 @@ class WaterProgram(object):
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
-                #print("Evaluated and giving water")
 
 
 
@@ -237,7 +235,6 @@ class WaterProgram(object):
         bol = True
         i =1
         while bol:
-            print("1")
             timeout_milliseconds(2000)
             self.evaluate_sensor_data()
             self.retrieve_all_sensor_data()

@@ -59,15 +59,11 @@ class CommandThread(threading.Thread):
                 continue
 
             with self.serial_lock:
-                #print(order, param1, param2)
                 if order.value != wp.Order.CHECKSUM.value:
                     wp.write_order(self.serial_file, order)
-                    #print("order written", order)
                     if param1 != -1:
-                        #print("param1 written: ", param1)
                         wp.write_i8(self.serial_file, param1)
                     if param2 != -1:
-                        #print("param2 written: ", param2)
                         wp.write_i16(self.serial_file, param2)
                 else:
                     wp.write_i16(self.serial_file, param1)
@@ -135,7 +131,6 @@ class ListenerThread(threading.Thread):
                     except ValueError:
                         continue
                     if order == wp.Order.RECEIVED:
-                        print("Received message")
                         self.checksum = self.checksum + order.value
                         try:
                             received_checksum = wp.read_i16(self.serial_file)
