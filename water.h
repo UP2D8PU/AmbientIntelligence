@@ -1,7 +1,6 @@
-
 #include "order.h"
 #include <stdio.h>
-#include <stdint.h>  /* uint8_t, ... */
+#include <stdint.h> 
 #include <Arduino.h>
 #include <avr/io.h>
 
@@ -9,7 +8,6 @@
 #include "Servo.h"
 #include "devices.h"
 #include "comm.h"
-//#include "var_types.h"
 
 #ifndef _WATER_TASK_
 

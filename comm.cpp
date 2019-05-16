@@ -53,9 +53,9 @@ void /**/COM_init(void)
 
 void wait_for_bytes(int num_bytes, unsigned long timeout)
 {
-  unsigned long  startTime = millis();//BYTE_timer;
+  unsigned long  startTime = millis();
   //Wait for incoming bytes or exit if timeout
-  while ((Serial.available() < num_bytes) && (millis() - startTime < timeout)) {} //remove BYTE_timer
+  while ((Serial.available() < num_bytes) && (millis() - startTime < timeout)) {} 
 }
 
 Order read_order() {
