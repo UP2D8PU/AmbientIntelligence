@@ -213,7 +213,8 @@ class WaterProgram(object):
         for i in range(0, 6):
             type = garden[i]["type"]
             if (type > 0) and (garden[i]["humiditysensor value"] <  plants[type]["humidity threshold max"]):
-                self.water_plant(garden[i]["angle"], plants[garden[i]["type"]]["water quantity"])
+                if sensor_values["air humidity value"] < sensor_values["air humidity threshold"]:
+                    self.water_plant(garden[i]["angle"], plants[garden[i]["type"]]["water quantity"])
 
     def evaluate_sensor_data(self):
         for i in range(0,5):
@@ -223,7 +224,7 @@ class WaterProgram(object):
                     quantity = plants[garden[i]["type"]]["water quantity"]
                 if sensor_values["temperature value"] > sensor_values["temperature high threshold"]:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
-                elif sensor_values["temperature value"] > sensor_values["temperature low threshold"] and sensor_values["lightsensor value"] > sensor_values["light intensity threshold"]:
+                elif sensor_values["temperature value"] > sensor_values["temperature low threshold"] and sensor_values["lightsensor value"] > plants[garden[i]["type"]]["light intensity threshold"]:
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))

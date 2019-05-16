@@ -5,30 +5,30 @@ plants = {
         "water quantity": 0,
         "humidity threshold min": 0,
         "humidity threshold max": 0,
-        "light intensity":0,
+        "light intensity threshold":0,
 
     },
     1: {
         "name": "Rose",
         "water quantity": 100,
-        "humidity threshold min": 10,
-        "humidity threshold max": 10,
-        "light intensity":10,
+        "humidity threshold min": 40,
+        "humidity threshold max": 85,
+        "light intensity threshold":50,
     },
     2:{
         "name":"Cactus",
         "water quantity": 50,
         "humidity threshold min": 10,
-        "humidity threshold max": 10,
-        "light intensity":10,
+        "humidity threshold max": 50,
+        "light intensity threshold":80,
 
     },
     3:{
         "name":"Sunflower",
         "water quantity": 150,
-        "humidity threshold min": 10,
-        "humidity threshold max": 10,
-        "light intensity":10,
+        "humidity threshold min": 50,
+        "humidity threshold max": 85,
+        "light intensity threshold":50,
     }
 };
 
@@ -71,9 +71,7 @@ sensor_values = {
         "temperature value": 0,
         "airhumidity value": 0,
         "lightsensor value": 0,
-        "air humidity threshold": 85,
+        "air humidity threshold": 90,
         "temperature high threshold": 25,
         "temperature low threshold": 20,
-        "light intensity threshold": 100,
-
 };
