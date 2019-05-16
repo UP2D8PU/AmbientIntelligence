@@ -15,8 +15,8 @@
 #define HUMIDITY_SENSOR_6 6
 
 // Define digital pins for actuators
-#define STEPPERMOTOR 2 // pin 10 is PMW - analog. White wire Must also be connected to 5V and GND
-#define WATERPUMP 11 // digital
+#define STEPPERMOTOR 2 
+#define WATERPUMP 11 
 
 
 #endif

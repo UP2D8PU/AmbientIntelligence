@@ -41,12 +41,6 @@ void update_motor(uint8_t angle)
 
 void /**/WATER_task(void) {
 
-    // code that needs to be running all the time.
- 
-  // check to see if it's time to water; that is, if the 
-  // difference between the current time and last time you blinked 
-  // the LED is bigger than the interval at which you want to 
-  // blink the LED.
   if ((water_state == WATER_STATE_OFF) && (angle_queue.count() > 0) && (water_quantity_queue.count() > 0)) {
     angle = angle_queue.dequeue ();
     quantity = water_quantity_queue.dequeue ();

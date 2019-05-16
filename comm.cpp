@@ -16,7 +16,9 @@ uint8_t checksum;
 bool message_received;
 bool is_connected;
 unsigned long timeout = 100;
-int testint = 0 ;
+
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
 
 
 /* Functions for init**/
@@ -27,10 +29,6 @@ void write_startbyte(void);
 void write_checksum(int16_t checksum);
 
 
-#define DHTTYPE DHT22
-DHT dht(DHTPIN, DHTTYPE);
-/* Inicialização da tarefa SYS.
-  +------------------------------------------------------------------------*/
 void /**/COM_init(void)
 {
   unsigned long timeout = 2000;
@@ -51,11 +49,6 @@ void /**/COM_init(void)
   write_checksum(checksum_to_send);
 
 }
-
-
-
-/* Tarefa SYS. Apenas controla o led "alive".
-  +------------------------------------------------------------------------*/
 
 
 void wait_for_bytes(int num_bytes, unsigned long timeout)
@@ -87,7 +80,7 @@ void read_signed_bytes(int8_t* buffer, size_t n)
     i++;
   }
 }
-//Not understanding this
+
 int16_t read_i16()
 {
   int8_t buffer[2];
@@ -96,10 +89,6 @@ int16_t read_i16()
   return (((int16_t) buffer[0]) & 0xff) | (((int16_t) buffer[1]) << 8 & 0xff00);
 }
 
-float read_float() {}
-
-//uint8_t is an unsigned 8 bit integer, uint8_t* is a pointer to an 8 bit integer in ram/memory
-//The & in front of the pointer type variable will show the actual data held by the pointer.
 void write_order(int myOrder) {
   uint8_t* Order = (uint8_t*) &myOrder;
   Serial.write(Order, sizeof(uint8_t));
@@ -109,9 +98,7 @@ void write_i8(int8_t num) {
   Serial.write(num);
 }
 
-//Not understanding this
-void write_i16(int16_t num)
-{
+void write_i16(int16_t num){
   int8_t buffer[2] = {(int8_t) (num & 0xff), (int8_t) (num >> 8)};
   Serial.write((uint8_t*)&buffer, 2 * sizeof(int8_t));
 }
@@ -176,14 +163,16 @@ void COM_task(void)
             float t = dht.readTemperature();
             msg = (int)(t * 10);
             if (isnan(msg)) {
-              //Print error
+              write_order(ERROR);
+              write_i16(417);
               return;
             }
           } else if (sensor == AIRHUMIDITY_SENSOR) {
             float h = dht.readHumidity();
             msg = (int)(h * 10);
             if (isnan(msg)) {
-              //Print error
+              write_order(ERROR);
+              write_i16(417);
               return;
             }
           } else if (sensor == LIGHT_SENSOR) {
@@ -227,13 +216,13 @@ void COM_task(void)
 
       } else {
         write_order(ERROR);
-        write_i16(order);
+        write_i16(404);
         return;
 
       }
     } else {
       write_order(ERROR);
-      write_i16(401);
+      write_i16(400);
       return;
     }
   }

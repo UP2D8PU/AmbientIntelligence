@@ -90,10 +90,8 @@ def decode_order(messages):
                 sensor_values["airhumidity value"] = sensor_data / 10;
             elif sensor == 0:
                 sensor_values["lightsensor value"] = sensor_data
-                print("light: " + str(sensor_data))
             elif sensor == 1:
                 garden[0]["humiditysensor value"] = sensor_data
-                print("hum1: " + str(sensor_data))
             elif sensor == 2:
                 garden[1]["humiditysensor value"] = sensor_data
             elif sensor == 3:
@@ -227,28 +225,3 @@ class WaterProgram(object):
                     quantity += (plants[garden[i]["type"]]["water quantity"])/2;
             if quantity > 0:
                 self.water_plant(garden[i]["angle"], round(quantity))
-
-
-
-
-    def run(self):
-        bol = True
-        i =1
-        while bol:
-            timeout_milliseconds(2000)
-            self.evaluate_sensor_data()
-            self.retrieve_all_sensor_data()
-            bol = False
-
-
-
-
-
-
-def main():
-    wp = WaterProgram()
-    wp.run()
-
-
-if __name__ == "__main__":
-    main()
